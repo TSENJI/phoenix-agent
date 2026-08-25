@@ -80,28 +80,42 @@ function toOpenAITools(tools: typeof BROWSER_TOOLS) {
   return tools.map(t => ({ type: 'function' as const, function: t.function }))
 }
 
-const SYSTEM_PROMPT = `You are Phoenix Agent, a powerful AI assistant with browser automation, file operations, code sandbox, and shell access capabilities.
+const SYSTEM_PROMPT = `You are Phoenix Agent, a powerful AI assistant with STEALTH browser automation, file operations, code sandbox, and shell access.
 
-You can use tools to:
-- **Browse the web**: Navigate to websites, click elements, fill forms, take screenshots, run JavaScript
-- **Code Sandbox (E2B)**: Execute Python/Node code in a secure sandbox, install packages, run long tasks
-- **Manage files**: Upload, read, list, decompress files (zip, tar.gz, tar, rar, 7z)
-- **Execute commands**: Run shell commands
-- **Search the web**: Find information online
-- **Human Takeover**: When blocked by CAPTCHA, 2FA, or login, request human help
+You have a built-in stealth browser that:
+- Hides all automation fingerprints (no webdriver flag, realistic UA, WebGL spoofing)
+- Auto-detects and waits for Cloudflare/JS challenges to resolve
+- Has realistic typing speed and human-like click delays
+- Maintains cookies across navigations in the same session
 
-Important rules:
-1. When browsing, always start with browser_snapshot to see available elements
-2. Use browser_navigate → snapshot → click/fill pattern
-3. For large text injection, use browser_evaluate with JavaScript
-4. If you detect a CAPTCHA, 2FA, or login wall, use human_takeover tool
-5. For code execution, prefer sandbox_execute over shell_execute (safer, isolated)
-6. Report your progress step by step
-7. If something fails, try alternative approaches before giving up
-8. You can decompress files: zip, tar.gz, tar, rar, 7z
-9. Use file_list to explore, file_read to read contents
+Browsing workflow:
+1. browser_navigate -> wait for page load (auto-waits 2s + CF detection)
+2. browser_snapshot -> see all interactive elements with ref IDs
+3. browser_click / browser_fill / browser_type / browser_press to interact
+4. browser_screenshot to take screenshots (user can see them!)
+5. browser_scroll to scroll the page
+6. browser_hover for dropdowns and hover menus
+7. browser_evaluate for custom JavaScript
+8. browser_wait for dynamic content
 
-You are proactive, thorough, and report your progress clearly.`
+Additional capabilities:
+- **Code Sandbox (E2B)**: Execute Python/Node code in an isolated sandbox
+- **File operations**: Upload, read, list, decompress (zip/tar.gz/tar/rar/7z)
+- **Shell commands**: Run any command on the server
+- **Web search**: DuckDuckGo search
+- **Human takeover**: When blocked by CAPTCHA, 2FA, or login that you cannot bypass
+
+CRITICAL rules:
+1. ALWAYS start browsing with browser_navigate, then browser_snapshot
+2. If you see a Cloudflare challenge, wait 5-10 seconds then browser_snapshot again
+3. If you detect CAPTCHA (hCaptcha, reCAPTCHA, Turnstile checkbox), use human_takeover with screenshot=true
+4. If a login page appears that needs credentials you don't have, use human_takeover
+5. For forms, use browser_fill (clears first) or browser_type (appends text)
+6. After clicking submit buttons, browser_wait 2000-3000ms before snapshot
+7. Take screenshots to show the user what you see
+8. For code execution, prefer sandbox_execute over shell_execute
+9. Report your progress step by step
+10. If something fails, try alternative approaches before giving up`
 
 // ---- E2B Sandbox tools (added to BROWSER_TOOLS) ----
 const EXTRA_TOOLS = [
@@ -308,7 +322,7 @@ export async function callAI(messages: ChatMessage[], preferredModel?: string): 
 export type StreamEvent =
   | { type: 'text'; content: string }
   | { type: 'tool_call'; content: string }
-  | { type: 'tool_result'; content: string }
+  | { type: 'tool_result'; content: string; screenshot?: string }
   | { type: 'human_takeover'; reason: string; action: string; screenshot?: string }
   | { type: 'error'; content: string }
   | { type: 'status'; content: string; provider?: ProviderId }
@@ -321,12 +335,21 @@ export async function* streamChat(messages: ChatMessage[], preferredModel?: stri
 
     if (response.content) yield { type: 'text', content: response.content }
 
-    if (response.toolCalls) {
+    if (response.toolCalls && response.toolCalls.length > 0) {
+      // Add assistant message with all tool calls
+      messages.push({
+        role: 'assistant',
+        content: response.content || '',
+        toolCalls: response.toolCalls,
+      })
+
+      // Execute ALL tool calls and collect results
       for (const tc of response.toolCalls) {
         const args = JSON.parse(tc.function.arguments)
         yield { type: 'tool_call', content: JSON.stringify({ name: tc.function.name, args }) }
 
-        // Handle human takeover specially
+        let toolResult = ''
+
         if (tc.function.name === 'human_takeover') {
           let screenshot = ''
           if (args.screenshot) {
@@ -334,23 +357,51 @@ export async function* streamChat(messages: ChatMessage[], preferredModel?: stri
           }
           yield { type: 'human_takeover', reason: args.reason, action: args.action_needed, screenshot }
 
-          // Wait for human to complete the action
           if (onHumanTakeover) {
             const humanResult = await onHumanTakeover({ reason: args.reason, action: args.action_needed })
-            yield { type: 'tool_result', content: `Human completed: ${humanResult}` }
+            toolResult = `Human completed: ${humanResult}`
           } else {
-            yield { type: 'tool_result', content: 'Human takeover requested. Waiting for human intervention...' }
+            toolResult = 'Human takeover requested. Waiting for human intervention...'
           }
+          yield { type: 'tool_result', content: toolResult }
         } else {
-          const result = await executeTool(tc.function.name, args)
-          yield { type: 'tool_result', content: result }
+          toolResult = await executeTool(tc.function.name, args)
+          // Truncate very large results to avoid token limit
+          if (toolResult.length > 8000) {
+            toolResult = toolResult.substring(0, 8000) + '\n...(truncated)'
+          }
+
+          // Extract screenshot data from tool result for frontend display
+          let screenshotData: string | undefined
+          try {
+            const parsed = JSON.parse(toolResult)
+            if (parsed.type === 'screenshot' && parsed.data) {
+              screenshotData = parsed.data
+              toolResult = '[Screenshot captured]'
+            }
+          } catch {}
+
+          yield { type: 'tool_result', content: toolResult, screenshot: screenshotData }
         }
 
-        messages.push({ role: 'assistant', content: response.content || '', toolCalls: [tc] })
-        messages.push({ role: 'tool', content: '', toolCallId: tc.id, name: tc.function.name })
-        yield* streamChat(messages, preferredModel, onHumanTakeover)
+        // Add tool result message with ACTUAL content so AI knows what happened
+        messages.push({
+          role: 'tool',
+          content: toolResult,
+          toolCallId: tc.id,
+          name: tc.function.name,
+        })
+      }
+
+      // Safety: limit tool loop depth to prevent infinite loops
+      const toolLoops = messages.filter(m => m.role === 'tool').length
+      if (toolLoops > 30) {
+        yield { type: 'error', content: 'Tool loop limit reached (30 iterations). Stopping to prevent infinite loop.' }
         return
       }
+
+      // Continue the conversation with tool results
+      yield* streamChat(messages, preferredModel, onHumanTakeover)
     }
   } catch (err) {
     yield { type: 'error', content: err instanceof Error ? err.message : String(err) }
@@ -434,19 +485,15 @@ async function executeTool(name: string, args: Record<string, string>): Promise<
     if (name.startsWith('browser_')) {
       const action = name.replace('browser_', '')
       if (action === 'screenshot') {
-        const screenshotPath = path.join(UPLOADS_DIR, `screenshot_${Date.now()}.png`)
         try {
-          const result = await callRemoteBrowser('/screenshot', {})
-          // If remote returned base64, save it
-          if (result.startsWith('data:') || result.length > 1000) {
-            const base64Data = result.replace(/^data:image\/\w+;base64,/, '')
-            await fs.mkdir(UPLOADS_DIR, { recursive: true })
-            await fs.writeFile(screenshotPath, Buffer.from(base64Data, 'base64'))
-            return `[Screenshot] ${screenshotPath}`
+          const result = await callRemoteBrowser('/screenshot', args)
+          // Return base64 directly so the frontend can display the image
+          if (result.startsWith('data:image')) {
+            return JSON.stringify({ type: 'screenshot', data: result })
           }
-          return result
-        } catch {
-          return runLocalBrowser('screenshot', { path: screenshotPath })
+          return `[Screenshot error: unexpected response]`
+        } catch (err) {
+          return `Screenshot error: ${err instanceof Error ? err.message : String(err)}`
         }
       }
       return callRemoteBrowser(`/${action}`, args)

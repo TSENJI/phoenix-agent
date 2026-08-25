@@ -111,21 +111,33 @@ function ToolCallCard({ name, args }: { name: string; args: string }) {
   )
 }
 
-function ToolResultCard({ content }: { content: string }) {
+function ToolResultCard({ content, screenshot }: { content: string; screenshot?: string }) {
   const [open, setOpen] = useState(false)
+  const showImage = screenshot || (content.startsWith('{') && content.includes('"type":"screenshot"'))
+  let imgSrc = screenshot
+  if (!imgSrc) {
+    try { const p = JSON.parse(content); if (p.data) imgSrc = p.data } catch {}
+  }
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="my-1">
       <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-lg border border-white/5 bg-white/3 px-3 py-2 text-left text-xs transition-colors hover:bg-white/5">
         {open ? <ChevronDown className="h-3 w-3 opacity-50" /> : <ChevronRight className="h-3 w-3 opacity-50" />}
-        <span className="opacity-60">Tool Result</span>
+        {imgSrc ? <span className="opacity-60">Screenshot</span> : <span className="opacity-60">Tool Result</span>}
         <span className="ml-auto text-[10px] opacity-30 font-mono max-w-[200px] truncate">
-          {content.slice(0, 60)}
+          {imgSrc ? 'Click to view' : content.slice(0, 60)}
         </span>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <pre className="mt-1 max-h-64 overflow-y-auto rounded-lg bg-black/20 p-3 font-mono text-[11px] leading-relaxed opacity-60 whitespace-pre-wrap break-words">
-          {content}
-        </pre>
+        {imgSrc && (
+          <div className="mt-1 rounded-lg overflow-hidden border border-white/5">
+            <img src={imgSrc} alt="Screenshot" className="w-full h-auto max-h-[60vh] object-contain bg-black/30" />
+          </div>
+        )}
+        {!imgSrc && (
+          <pre className="mt-1 max-h-64 overflow-y-auto rounded-lg bg-black/20 p-3 font-mono text-[11px] leading-relaxed opacity-60 whitespace-pre-wrap break-words">
+            {content}
+          </pre>
+        )}
       </CollapsibleContent>
     </Collapsible>
   )
@@ -204,7 +216,36 @@ export const ChatMessageBubble = memo(function ChatMessageBubble({ event, index 
         className="flex justify-start px-4 py-0.5"
       >
         <div className="max-w-[90%] sm:max-w-[80%] w-full">
-          <ToolResultCard content={event.content} />
+          <ToolResultCard content={event.content} screenshot={event.screenshot} />
+        </div>
+      </motion.div>
+    )
+  }
+
+  // Human takeover
+  if (isStreamingEvent(event) && event.type === 'human_takeover') {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex justify-start px-4 py-1"
+      >
+        <div className="max-w-[90%] sm:max-w-[85%] w-full rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-3">
+          <div className="flex items-center gap-2 text-amber-400">
+            <AlertCircle className="h-5 w-5 shrink-0" />
+            <span className="font-medium text-sm">Human Intervention Needed</span>
+          </div>
+          {event.screenshot && (
+            <div className="rounded-lg overflow-hidden border border-white/10">
+              <img src={event.screenshot} alt="Current page" className="w-full h-auto max-h-[50vh] object-contain bg-black/30" />
+            </div>
+          )}
+          <div className="space-y-1.5 text-sm">
+            <p><span className="text-amber-400 font-medium">Why:</span> <span className="opacity-80">{event.reason}</span></p>
+            <p><span className="text-amber-400 font-medium">What to do:</span> <span className="opacity-80">{event.action}</span></p>
+          </div>
+          <p className="text-[11px] opacity-40">Complete the action, then type your result to continue the conversation.</p>
         </div>
       </motion.div>
     )
