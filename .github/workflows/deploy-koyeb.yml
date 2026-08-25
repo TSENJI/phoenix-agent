@@ -1,0 +1,17 @@
+name: Deploy to Koyeb
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Koyeb
+        uses: koyeb/action-deploy@v2
+        with:
+          api-token: ${{ secrets.KOYEB_API_TOKEN }}
+          service-id: ${{ secrets.KOYEB_SERVICE_ID }}

@@ -1,0 +1,18 @@
+# Koyeb deploy config
+# Go to https://app.koyeb.com → Create Service → Git → select your repo
+# Koyeb will auto-detect Dockerfile.cloud
+
+name: phoenix-agent
+service: phoenix-agent
+instance_type: nano
+deploy:
+  docker:
+    dockerfile: Dockerfile.cloud
+    build_args: []
+ports:
+  - port: 3000
+    protocol: http
+    path: /
+routes:
+  - path: /
+    port: 3000

@@ -1,0 +1,18 @@
+# Render deploy config
+# Go to https://dashboard.render.com → New → Blueprint
+# Select your GitHub repo, Render will auto-detect this file
+
+services:
+  - type: web
+    name: phoenix-agent
+    runtime: docker
+    dockerfilePath: ./Dockerfile.cloud
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: DATABASE_URL
+        value: file:/app/db/phoenix.db

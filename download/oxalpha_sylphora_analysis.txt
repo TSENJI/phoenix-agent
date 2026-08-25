@@ -1,0 +1,267 @@
+Sylphora 專案完整分析報告（由 Ox Alpha 生成）
+=========================================
+
+一、專案總覽
+
+Sylphora 是一款 Android 原生前端啟動器，定位為「蒼憶的復古遊戲博物館」。它整合了：
+
+ROM 掃描與管理（多來源 SAF 掃描）
+模擬器橋接啟動（支援 100+ 模擬器/核心）
+AI 館長系統（多 Provider、意圖路由、Token 預算管理）
+資產比對引擎（本地圖檔模糊匹配 + SteamGridDB 刮削）
+11 種主題家族 × 深淺色模式
+
+二、逐檔分析
+
+1. metadata.json
+
+宣告專案名稱、描述，並聲明使用 Server-Side Gemini API 能力。無框架權限需求。
+
+2. AndroidManifest.xml
+
+權限：INTERNET、VIBRATE、QUERY_ALL_PACKAGES（掃描已安裝 App）、READ_MEDIA_IMAGES/VIDEO、MANAGE_EXTERNAL_STORAGE
+MainActivity：exported=true、強制 landscape（橫屏，符合掌機/電視使用情境）、LAUNCHER 入口
+
+3. AppScanner.kt
+
+功能：掃描裝置上已安裝的 Android 應用程式。
+
+元素	說明
+AppInfo	name / packageName / icon / isEmulator
+emulatorKeywords	~40 個關鍵字清單（retroarch, ppsspp, dolphin…），用於標記模擬器類 App
+getInstalledApps()	IO 協程中 queryIntentActivities，排除自身，按名稱排序
+launchApp()	取得 launch intent 並以 NEW_TASK 啟動
+
+4. GameLauncherApp.kt（核心 UI 檔，~2000 行）
+
+主要結構：
+GameLauncherScreen (根)
+├── SylphoraSplashScreen（開場動畫）
+├── NavHost: home / library / ai / research / tools
+├── DockAndNav（浮動底部導航列 + 上滑手勢喚出）
+├── GameMuseumDetailDialog / PlayerProfileDialog
+└── EmulatorSelectionDialog / NoEmulatorDialog
+
+關鍵函數：
+
+GameLauncherScreen()：組裝主題（CompositionLocalProvider 注入 LocalPegasusTheme）、背景壁紙三層優先序（選中遊戲背景 > 自訂壁紙 > 主題漸層+氛圍動畫）、手把導航事件監聽（GlobalGamepadEvents：B=返回、X=遊戲庫、Y=AI、L1/R1=循環切換頁面、START=喚出 Dock）
+HomeBody()：首頁邏輯——平台分組 → 平台選擇視圖（偽造 PLATFORM_SELECTOR 的 GameEntity）→ 點擊進入該平台遊戲列表；雙擊同一卡片觸發詳情/啟動；掃描中顯示進度卡
+DockAndNav() / BottomDock()：3 秒自動隱藏的浮動 Dock，依 themeIndex 分派到 11 種風格 Dock（SylphoraDock、IisuFluidDock、PegasusImperialDock、EsdeEsportsDock、SteamDeckDock、CyberpunkMatrixDock、NintendoJoyDock、GameBoyPixelDock、AnimeSakuraDock、Ps5DualSenseDock、Switch2OledDock）
+TopRail()：頂欄時鐘、深淺色快速切換、玩家頭像膠囊
+FocusCard() / GameCarousel()：焦點卡片縮放動畫（1.05 vs 0.92 scale）
+
+5. GameViewModel.kt（狀態中樞，~1200 行）
+
+架構：AndroidViewModel + StateFlow 為主的單向資料流。
+
+主要區塊：
+
+區塊	內容
+依賴注入式成員	repository、settingsRepository、romScanner、assetDiscoveryService、metadataCsvService、rotationManager、aiResolver、maintenanceManager、researchManager
+ROM 掃描	withScanning() 用 AtomicInteger 計數器支援並發任務共享 isScanning 狀態；scanAllRomSources()、scanPlatformOnly()、startRomScan(uri)
+遊戲啟動決策樹	launchGame()：Android App 直接啟動 → MANUAL 模式覆寫 → 已存偏好 → 單一模擬器直接啟動 → 多模擬器彈 EmulatorPickerState → 全無則 NoEmulatorDialog
+AI 整合	sendCuratorChat() 組裝 CuratorContext（含全館藏、缺失欄位、當前畫面），「開始考據」關鍵字觸發 startResearchAndFillDataWithProgress()（研究→驗證→合併→CSV 同步）
+知識服務	fetchOrGenerateEvolution/Cheats/Museum/Dna —— AI 生成後以 Moshi 序列化 JSON 存入 DB 欄位
+刮削	scrapeSingleGame() / startBatchSteamGridScraping()（SteamGridDB）
+本地資產比對	matchLocalAssetsFromAssetRoot() 支援 missingOnly / forceRematch / platformFilter
+CSV 同步	syncAllGameDescriptions() 批次同步 Description CSV（LOADED_FROM_CSV / APPENDED / AI_GENERATED / NO_CHANGE 四種結果）
+
+6. LauncherBridge.kt（模擬器橋接核心）
+
+三大註冊表：
+
+PLATFORM_LAUNCHERS：~150 個平台 → launcher ID 優先序列（如 SWITCH → eden, suyu, yuzu…）
+LAUNCHER_PROFILES：每個 launcher 的詳細定義（packageName + alternativePackages 多變體解析 + RetroArch core .so 檔名）
+getPlatformEmulatorConfigs()：設定頁用的平台→模擬器→核心三層配置
+
+launchGame() 五段式啟動策略：
+
+app:// 前綴 → Android App 直接啟動
+RetroArch kind → launchRetroArchDirect()（RetroActivityFuture + ROM/LIBRETRO/CONFIGFILE extras）
+Switch 系專用 dispatcher（Eden/Yuzu/Suyu/Sudachi/Skyline 各自嘗試多個 Activity 名稱與 URI 變體）
+Standalone view-intent（ACTION_VIEW + ClipData + 多種 path extras）
+最終 fallback 到任何已安裝的 RetroArch 64-bit
+
+輔助：resolveInstalledPackage()（主包名失敗時遍歷 alternativePackages）、getFileSystemPathFromUri()（SAF content:// 轉實體路徑）。
+
+7. MainActivity.kt
+
+Edge-to-edge 全螢幕、隱藏系統列
+GlobalGamepadEvents = MutableSharedFlow<Int>：onKeyDown 將所有按鍵碼廣播給 Compose 層消費
+
+8. agent/AICuratorAgent.kt
+
+chat() 流程：
+
+去重快取（60 秒 deduplication cache）
+CuratorRouter 意圖路由：
+DIRECT_DATABASE → 純本地查詢回覆
+BATCH_ANALYSIS → 分批 50 款壓縮摘要 → 二階段彙整
+METADATA_ENRICHMENT → 觸發 MetadataEnrichmentService 補齊後遞迴重路由
+RESEARCH → ResearchEngine 評估是否需要 Web Search
+其他 → 直接 AI 對話
+System Prompt 組裝：性格設定 + 館藏統計 + 檢索候選（用 TokenBudgetManager 快取的精簡摘要）+ 本機 CSV 說明優先原則 + 缺失欄位主動詢問指令
+歷史壓縮：compressHistoryWithSummary 裁剪舊對話並保留要點摘要
+
+generateDescription()：獨立簡介生成器，100–150 字、UNKNOWN_GAME 偵測。
+
+9. agent/CuratorRouter.kt
+
+用低溫度（0.1）小 maxTokens（200）的 LLM 呼叫做意圖分類，輸出嚴格 JSON（intent/platformFilter/genreFilter/requiredFields/reasoning），失敗時安全 fallback 到 DATABASE_PLUS_AI。7 種 CuratorIntent 列舉。
+
+10. agent/GameKnowledgeService.kt
+
+四個 JSON 結構化生成服務（皆經 Moshi 反序列化）：
+
+generateMuseum() → MuseumFields（7 大維度考據）
+generateDna() → GameDna（4–6 軸特徵光譜）
+generateEvolution() → EvolutionData（前作/續作/重製關係鏈）
+generateCheats() → CheatGuideData，失敗時有精心策展的本地 fallback（超時空之鑰、月下夜想曲、魂斗羅的真實秘技），拒絕捏造假代碼
+
+11. agent/TokenBudgetManager.kt
+
+Singleton 物件，負責：
+
+Token 估算：CJK 混合啟發式（length/1.5）
+模型上下文預算：gpt-4/gemini/claude-3 → 100k，llama-3 → 6k，其他 4k
+任務型輸出預算：CHAT 2000 / MUSEUM 3000 / ACTION_INTENT 50 等
+精簡摘要快取：gameId + metadataHash 鍵控
+請求去重：60 秒 TTL 回應快取
+歷史壓縮：從最新往回保留，超出預算的舊對話萃取為「前置對話記憶要點」
+診斷指標：AtomicLong 追蹤實際/估算 token、快取命中節省量
+
+12. api/AiTransport.kt
+
+三個傳輸實作（純 HttpURLConnection，無 OkHttp/Retrofit）：
+
+GenericOpenAiCompatibleTransport：OpenAI/Groq/GitHub/OpenRouter/Ollama 相容 /chat/completions
+GeminiTransport：v1beta generateContent，systemInstruction + contents 陣列
+CloudflareTransport：Workers AI /accounts/{id}/ai/run/{model}
+
+皆回傳 AiTransportResult 含 usage tokens（供 TokenBudgetManager 記錄）。
+
+13. database/AppDatabase.kt
+
+Room v9，4 個 Entity（games / research_tasks / task_checkpoints / asset_match_records），8 個手寫 Migration 完整保留升級路徑（v5 新增 research/checkpoint 表、v7 加 file_name/file_path/ai_detected_title、v8 加 asset_match_records、v9 加索引優化查詢）。單例模式 pegasus_database。
+
+14. database/GameRepository.kt
+
+DAO 包裝層，核心亮點是 mergeScannedGame()：
+
+掃描結果合併時保護使用者資料（isFavorite/playCount/playStatus/customCollections/museumJson 等 AI 生成欄位一律保留 existing）
+upsertScannedGamesBatch(context, ...)：Priority 1 romPath 精確匹配 → Priority 2 ROMHASH_ 內容雜湊穩定識別（檔案搬移/改名不會造成重複條目）
+
+15. p3/asset/AssetDiscoveryService.kt
+
+支援 5 種資產目錄佈局：
+
+Per-game folder（Platform/GameTitle/boxfront.png…）
+Libretro thumbnails（Named_Boxarts/Named_Snaps/Named_Titles）
+Pegasus/ES media（media/box2d、covers、wheel…）
+Flat naming（GameTitle_screenshot.png）
+Metadata 檔案：gamelist.xml（regex 解析 XML）、metadata.pegasus.txt（自製 parser）、description.csv
+
+效能優化：只 prefetch 型別化資產目錄而非全部子目錄（避免 2000 個遊戲資料夾 = 2000 次 SAF IPC）；增量模式 missingOnly 只處理缺資產的遊戲；AssetMatchEntity 快取 MATCHED 狀態永久跳過重新搜尋。
+
+16. p3/asset/AssetMatcher.kt
+
+六級嚴格匹配演算法（防止錯配不同版本）：
+
+Raw exact → 2. Safe normalized → 3. Canonical core title（多候選時進入 resolveCoreConflict）→ 4. Variants → 5. Fuzzy Levenshtein（需 ≥0.88 單候選或 ≥0.92/差距≥0.08 多候選）→ 6. Reject
+
+Token 衝突防護：extractImportantTokens() 抽取數字、羅馬數字、地區（USA/Japan/PAL）、語言、版本色（Pokemon Red vs Blue）、Revision——衝突即拒絕匹配。resolveCoreConflict 依 region → version → revision → language → 地區偏好順序確定性消歧，無法消歧則回 null。
+
+17. research/ResearchEngine.kt
+
+evaluateNeedWebSearch() 三層決策：
+
+SEARCH_OFF / ALWAYS_SEARCH 直接判定
+SMART_SEARCH：明確搜尋關鍵字 → 時效性關鍵字（價格/版本/2025）→ 基礎常識且本機有資料則跳過 → 最終交給 LLM JSON 決策器
+
+performResearch()：
+
+30 秒總逾時保護
+精確名稱+地區引號搜尋 → 來源按可信度 Tier 排序 → 抓 top 3 網頁內文（每頁 4 秒逾時、總計 3500 字元 staged budget）
+Prompt 強制「多來源交叉比對」「Tier 1/2 優先」「嚴禁捏造網址」
+無來源時後處理剝除假參考資料區塊
+結果持久化至 filesDir/research/{platform}/{game}.json
+
+researchCandidateData()：研究報告 → 低溫度提取 metadata JSON（value/source/confidence）→ 嚴格驗證：confidence 必須 HIGH 且 source 必須能對應到實際檢索到的來源，否則拒收；provenance 存入永久檔案供 UI 審計。
+
+18. scanner/RomScanner.kt
+
+PlatformRegistry：
+
+canonicalMap：~250 個別名 → 正規平台 ID（含中文「紅白機」「街機」）
+extensionToPlatform：~60 個唯一副檔名直接判平台
+platformExtensions：每平台的允許副檔名白名單
+nonRomExtensions：排除 srm/sav/patch/圖片等伴隨檔
+guessPlatformFromExtensionAndPath()：路徑階層優先（父資料夾名）→ 唯一副檔名 → 副檔名 fallback
+
+RomScanner.scanSource()：
+
+遞迴最深 4 層
+PICO-8 特殊處理（.p8.png 卡帶）
+CD 音軌過濾（Track 2+ regex）
+CUE/BIN 去重（偏好 cue/chd/m3u/rvz）
+cleanGameTitle() 剝除 (USA)/[!]/(Disc 1) 等釋出版本標籤
+
+19. settings/SettingsRepository.kt
+
+SharedPreferences 封裝（sylphora_settings_v1），JSON 序列化管理複雜物件：
+
+ROM Sources、API Profiles（SecureKeyStoreHelper 加解密 API keys）、Feature→Profile 綁定
+主題/音效/字體/玻璃透明度/CRT
+Web Search 設定（mode/provider/key/custom endpoint）
+模擬器覆寫（emu_mode / emu_override / core_override per platform）
+快取模型清單、自訂平台圖、選中遊戲 ID
+
+三、UI 畫面分析
+
+ui/screens/CuratorScreen.kt
+
+四個子分頁：
+
+遊戲顧問（CuratorChatView）：聊天室 + SilphyetteAvatar——純 Canvas 手繪的動態角色（呼吸縮放、keyframes 眨眼、思考時眼神游移、說話時嘴巴開合、狀態環顏色變化）；快捷提示 chips 會在 AI 詢問「需要我為您考據嗎」時切換為 ✅/❌ 確認按鈕
+隨機推薦（FateDrawView）：命運抽籤
+情境推薦（MoodRecommendationView）：四種心情過濾（relax/action/story/arcade → genre 關鍵字映射）
+收藏庫統計（ArchaeologyHealthView）：健康度圓環 + 平台分佈
+
+ui/screens/LibraryScreen.kt
+
+遊戲/應用程式 FilterChip 切換（AppsScreen 內嵌於 Library）
+非 Sylphora 主題走 ThemeExperienceLibrary，Sylphora 主題有 5 種佈局模式：iiSU 流體輪播、Pegasus 海報網格、ES-DE 輪盤列表、Switch 方塊平鋪、夜間博物館
+搜尋 250ms debounce、平台/遊玩狀態/自訂收藏集三軸過濾
+GameMuseumDetailDialog：5 分頁深度資料館
+  - 歷史考據（含 Provenance 溯源卡：從 provenance_{id}.json 讀取 value/source/confidence）
+  - Game DNA（LinearProgressIndicator 光譜條）
+  - 作品演化（演化連結 + 「✅ 已收藏於遊戲庫」交叉比對）
+  - 金手指攻略（代碼一鍵複製、monospace 綠色代碼框）
+  - 遊玩管理（狀態標記、時間加減、收藏集標籤、行內編輯、單遊戲刮削、刪除確認）
+EmulatorSelectionDialog / NoEmulatorDialog（引導去 Play 商店）
+
+ui/theme/ThemeManager.kt
+
+PegasusTheme data class（12 個色彩屬性 + glassmorphismAlpha）
+11 個 ThemeFamily：Sylphora（紫羅蘭星雨）、iiSU、Pegasus 黑金、ES-DE 電競青、Steam Deck、Cyberpunk HUD、Nintendo 紅、Game Boy LCD 四色、Anime 粉、PS5 藍、Switch 2
+LocalPegasusTheme CompositionLocal + toMaterialColorScheme() 橋接 Material3
+FontSize（0.85/1.0/1.15 scale）與 LauncherLayoutMode 列舉
+
+四、資料流總結
+
+SAF 目錄授權 → RomScanner → GameEntity → GameRepository.mergeScannedGame → Room DB → _allGames StateFlow → HomeBody/Library / GameMuseumDialog → LauncherBridge（模擬器 Intent）/ GameKnowledgeService（AI JSON → Moshi → DB）
+
+AssetDiscoveryService（本地模糊匹配 + gamelist.xml/pegasus/csv）/ ImageScraperService（SteamGridDB）/ MetadataCsvService（雙向同步 CSV ↔ Room）
+
+AICuratorAgent ← ApiProfiles（多 Key 輪替 failover）
+  ├─ CuratorRouter（意圖分類）
+  ├─ ResearchEngine（Web Search + 可信度驗證）
+  └─ TokenBudgetManager（預算/快取/壓縮）
+
+設計亮點：
+
+1. 防錯配的六級資產匹配 + token 衝突防護，寧可漏配不誤配
+2. 掃描合併保護使用者資料（mergeScannedGame 白名單式保留）
+3. AI 資料的溯源審計（provenance JSON + confidence/source 雙重驗證）
+4. Token 經濟學：去重、精簡摘要快取、歷史壓縮、分批 MapReduce
+5. 極廣的模擬器相容性：多包名變體解析 + 多 Activity/URI/extras 嘗試鏈

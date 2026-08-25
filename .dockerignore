@@ -1,0 +1,12 @@
+node_modules
+.next
+db/*.db
+uploads/*
+*.log
+git
+tmp
+scripts/
+download/
+worklog.md
+.zscripts/
+mini-services/browser-worker/node_modules

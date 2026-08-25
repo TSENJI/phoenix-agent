@@ -1,0 +1,2002 @@
+     1→     1→================================================================================
+     2→     2→FILE: metadata.json
+     3→     3→================================================================================
+     4→     4→{
+     5→     5→  "name": "Sylphora",
+     6→     6→  "description": "Sylphora · 蒼穹與記憶的復古遊戲博物館前端。在深邃蒼穹與純白月光下，守護被時間留下的經典遊戲記憶。",
+     7→     7→  "requestFramePermissions": [],
+     8→     8→  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+     9→     9→}
+    10→    10→
+    11→    11→
+    12→    12→================================================================================
+    13→    13→FILE: settings.gradle.kts
+    14→    14→================================================================================
+    15→    15→pluginManagement {
+    16→    16→  repositories {
+    17→    17→    google {
+    18→    18→      content {
+    19→    19→        includeGroupByRegex("com\\.android.*")
+    20→    20→        includeGroupByRegex("com\\.google.*")
+    21→    21→        includeGroupByRegex("androidx.*")
+    22→    22→      }
+    23→    23→    }
+    24→    24→    mavenCentral()
+    25→    25→    gradlePluginPortal()
+    26→    26→  }
+    27→    27→}
+    28→    28→
+    29→    29→plugins { id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0" }
+    30→    30→
+    31→    31→dependencyResolutionManagement {
+    32→    32→  repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    33→    33→  repositories {
+    34→    34→    google()
+    35→    35→    mavenCentral()
+    36→    36→  }
+    37→    37→}
+    38→    38→
+    39→    39→rootProject.name = "Sylphora"
+    40→    40→
+    41→    41→include(":app")
+    42→    42→
+    43→    43→
+    44→    44→================================================================================
+    45→    45→FILE: build.gradle.kts
+    46→    46→================================================================================
+    47→    47→// Top-level build file where you can add configuration options common to all sub-projects/modules.
+    48→    48→plugins {
+    49→    49→  alias(libs.plugins.android.application) apply false
+    50→    50→  alias(libs.plugins.kotlin.compose) apply false
+    51→    51→  alias(libs.plugins.google.devtools.ksp) apply false
+    52→    52→  alias(libs.plugins.roborazzi) apply false
+    53→    53→  alias(libs.plugins.secrets) apply false
+    54→    54→  alias(libs.plugins.google.services) apply false
+    55→    55→}
+    56→    56→
+    57→    57→
+    58→    58→================================================================================
+    59→    59→FILE: gradle/libs.versions.toml
+    60→    60→================================================================================
+    61→    61→[versions]
+    62→    62→agp = "9.1.1"
+    63→    63→coreKtx = "1.18.0"
+    64→    64→junit = "4.13.2"
+    65→    65→junitVersion = "1.3.0"
+    66→    66→espressoCore = "3.7.0"
+    67→    67→lifecycleRuntimeKtx = "2.8.7"
+    68→    68→lifecycleViewmodelCompose = "2.8.7"
+    69→    69→lifecycleRuntimeCompose = "2.8.7"
+    70→    70→activityCompose = "1.10.1"
+    71→    71→kotlin = "2.2.10"
+    72→    72→composeBom = "2024.09.00"
+    73→    73→googleDevtoolsKsp = "2.3.5"
+    74→    74→navigationCompose = "2.8.9"
+    75→    75→roomRuntime = "2.7.0"
+    76→    76→roomKtx = "2.7.0"
+    77→    77→roomCompiler = "2.7.0"
+    78→    78→kotlinxCoroutinesTest = "1.10.2"
+    79→    79→core = "1.6.1"
+    80→    80→runner = "1.6.2"
+    81→    81→coilCompose = "2.7.0"
+    82→    82→retrofit = "2.12.0"
+    83→    83→converterMoshi = "2.12.0"
+    84→    84→kotlinxCoroutinesAndroid = "1.10.2"
+    85→    85→kotlinxCoroutinesCore = "1.10.2"
+    86→    86→accompanistPermissions = "0.37.3"
+    87→    87→playServicesLocation = "21.3.0"
+    88→    88→cameraCamera2 = "1.5.0"
+    89→    89→cameraLifecycle = "1.5.0"
+    90→    90→cameraView = "1.5.0"
+    91→    91→cameraCore = "1.5.0"
+    92→    92→loggingInterceptor = "4.10.0"
+    93→    93→okhttp = "4.10.0"
+    94→    94→moshiKotlin = "1.15.2"
+    95→    95→moshiKotlinCodegen = "1.15.2"
+    96→    96→datastorePreferences = "1.1.7"
+    97→    97→robolectric = "4.16.1"
+    98→    98→roborazzi = "1.59.0"
+    99→    99→firebaseBom = "34.15.0"
+   100→   100→secretsGradlePlugin = "2.0.1"
+   101→   101→googleServices = "4.5.0"
+   102→   102→credentials = "1.5.0"
+   103→   103→googleid = "1.1.1"
+   104→   104→
+   105→   105→
+   106→   106→[libraries]
+   107→   107→androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+   108→   108→junit = { group = "junit", name = "junit", version.ref = "junit" }
+   109→   109→androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+   110→   110→androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+   111→   111→androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+   112→   112→androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
+   113→   113→androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
+   114→   114→androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+   115→   115→androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+   116→   116→androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+   117→   117→androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+   118→   118→androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+   119→   119→androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+   120→   120→androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+   121→   121→androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+   122→   122→androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+   123→   123→androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "roomRuntime" }
+   124→   124→androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }
+   125→   125→androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomCompiler" }
+   126→   126→kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+   127→   127→androidx-core = { group = "androidx.test", name = "core", version.ref = "core" }
+   128→   128→androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
+   129→   129→androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+   130→   130→androidx-compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+   131→   131→androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+   132→   132→coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coilCompose" }
+   133→   133→retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+   134→   134→converter-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", version.ref = "converterMoshi" }
+   135→   135→kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutinesAndroid" }
+   136→   136→kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+   137→   137→accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanistPermissions" }
+   138→   138→play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+   139→   139→androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraCamera2" }
+   140→   140→androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraLifecycle" }
+   141→   141→androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
+   142→   142→androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
+   143→   143→logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "loggingInterceptor" }
+   144→   144→okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+   145→   145→moshi-kotlin = { group = "com.squareup.moshi", name = "moshi-kotlin", version.ref = "moshiKotlin" }
+   146→   146→moshi-kotlin-codegen = { group = "com.squareup.moshi", name = "moshi-kotlin-codegen", version.ref = "moshiKotlinCodegen" }
+   147→   147→androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
+   148→   148→robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+   149→   149→roborazzi = { group = "io.github.takahirom.roborazzi", name = "roborazzi", version.ref = "roborazzi" }
+   150→   150→roborazzi-compose = { group = "io.github.takahirom.roborazzi", name = "roborazzi-compose", version.ref = "roborazzi" }
+   151→   151→roborazzi-junit-rule = { group = "io.github.takahirom.roborazzi", name = "roborazzi-junit-rule", version.ref = "roborazzi" }
+   152→   152→firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+   153→   153→firebase-ai = { group = "com.google.firebase", name = "firebase-ai" }
+   154→   154→firebase-appcheck-recaptcha = { group = "com.google.firebase", name = "firebase-appcheck-recaptcha" }
+   155→   155→firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+   156→   156→firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+   157→   157→androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+   158→   158→androidx-credentials-play-services = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+   159→   159→googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
+   160→   160→
+   161→   161→
+   162→   162→[plugins]
+   163→   163→android-application = { id = "com.android.application", version.ref = "agp" }
+   164→   164→kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+   165→   165→google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "googleDevtoolsKsp" }
+   166→   166→roborazzi = { id = "io.github.takahirom.roborazzi", version.ref = "roborazzi" }
+   167→   167→secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+   168→   168→google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+   169→   169→
+   170→   170→
+   171→   171→================================================================================
+   172→   172→FILE: gradle.properties
+   173→   173→================================================================================
+   174→   174→# Project-wide Gradle settings.
+   175→   175→# IDE (e.g. Android Studio) users:
+   176→   176→# Gradle settings configured through the IDE *will override*
+   177→   177→# any settings specified in this file.
+   178→   178→# For more details on how to configure your build environment visit
+   179→   179→# http://www.gradle.org/docs/current/userguide/build_environment.html
+   180→   180→# Specifies the JVM arguments used for the daemon process.
+   181→   181→# The setting is particularly useful for tweaking memory settings.
+   182→   182→org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8
+   183→   183→# When configured, Gradle will run in incubating parallel mode.
+   184→   184→# This option should only be used with decoupled projects. For more details, visit
+   185→   185→# https://developer.android.com/r/tools/gradle-multi-project-decoupled-projects
+   186→   186→org.gradle.parallel=true
+   187→   187→# Kotlin code style for this project: "official" or "obsolete":
+   188→   188→kotlin.code.style=official
+   189→   189→# Enables namespacing of each library's R class so that its R class includes only the
+   190→   190→# resources declared in the library itself and none from the library's dependencies,
+   191→   191→# thereby reducing the size of the R class for that library
+   192→   192→android.nonTransitiveRClass=true
+   193→   193→org.gradle.caching=true
+   194→   194→org.gradle.configuration-cache=true
+   195→   195→# Set the maximum number of workers to 4 to avoid overloading the machine.
+   196→   196→org.gradle.workers.max=4
+   197→   197→# Set the Kotlin compiler execution strategy to in-process to avoid "Could not
+   198→   198→# connect to Kotlin compile daemon" error.
+   199→   199→kotlin.compiler.execution.strategy=in-process
+   200→   200→# Allow the google-services plugin to work even if the google-services.json is not present.
+   201→   201→googleServices.missing.passthrough=true
+   202→   202→
+   203→   203→
+   204→   204→================================================================================
+   205→   205→FILE: app/build.gradle.kts
+   206→   206→================================================================================
+   207→   207→import com.google.gms.googleservices.GoogleServicesPlugin.MissingGoogleServicesStrategy
+   208→   208→
+   209→   209→plugins {
+   210→   210→  alias(libs.plugins.android.application)
+   211→   211→  alias(libs.plugins.kotlin.compose)
+   212→   212→  alias(libs.plugins.google.devtools.ksp)
+   213→   213→  alias(libs.plugins.roborazzi)
+   214→   214→  alias(libs.plugins.secrets)
+   215→   215→  alias(libs.plugins.google.services)
+   216→   216→}
+   217→   217→
+   218→   218→android {
+   219→   219→  namespace = "com.example"
+   220→   220→  compileSdk { version = release(36) { minorApiLevel = 1 } }
+   221→   221→
+   222→   222→  defaultConfig {
+   223→   223→    applicationId = "com.aistudio.sylphora.kzmq"
+   224→   224→    minSdk = 24
+   225→   225→    targetSdk = 36
+   226→   226→    versionCode = 1
+   227→   227→    versionName = "1.0"
+   228→   228→
+   229→   229→    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+   230→   230→  }
+   231→   231→
+   232→   232→  signingConfigs {
+   233→   233→    create("release") {
+   234→   234→      val keystorePath = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/my-upload-key.jks"
+   235→   235→      storeFile = file(keystorePath)
+   236→   236→      storePassword = System.getenv("STORE_PASSWORD")
+   237→   237→      keyAlias = "upload"
+   238→   238→      keyPassword = System.getenv("KEY_PASSWORD")
+   239→   239→    }
+   240→   240→    create("debugConfig") {
+   241→   241→      storeFile = file("${rootDir}/debug.keystore")
+   242→   242→      storePassword = "android"
+   243→   243→      keyAlias = "androiddebugkey"
+   244→   244→      keyPassword = "android"
+   245→   245→    }
+   246→   246→  }
+   247→   247→
+   248→   248→  buildTypes {
+   249→   249→    release {
+   250→   250→      isCrunchPngs = false
+   251→   251→      isMinifyEnabled = false
+   252→   252→      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+   253→   253→      signingConfig = signingConfigs.getByName("release")
+   254→   254→    }
+   255→   255→    debug { signingConfig = signingConfigs.getByName("debugConfig") }
+   256→   256→  }
+   257→   257→  compileOptions {
+   258→   258→    sourceCompatibility = JavaVersion.VERSION_11
+   259→   259→    targetCompatibility = JavaVersion.VERSION_11
+   260→   260→  }
+   261→   261→  buildFeatures {
+   262→   262→    compose = true
+   263→   263→    buildConfig = true
+   264→   264→  }
+   265→   265→  testOptions { unitTests { isIncludeAndroidResources = true } }
+   266→   266→  dependenciesInfo {
+   267→   267→    includeInApk = false
+   268→   268→    includeInBundle = true
+   269→   269→  }
+   270→   270→}
+   271→   271→
+   272→   272→// Configure the Secrets Gradle Plugin to use .env and .env.example files
+   273→   273→// to match the convention used in Web projects.
+   274→   274→secrets {
+   275→   275→  propertiesFileName = ".env"
+   276→   276→  defaultPropertiesFileName = ".env.example"
+   277→   277→  ignoreList.add("FIREBASE_APPCHECK_DEBUG_TOKEN")
+   278→   278→}
+   279→   279→
+   280→   280→googleServices { missingGoogleServicesStrategy = MissingGoogleServicesStrategy.WARN }
+   281→   281→
+   282→   282→// Some unused dependencies are commented out below instead of being removed.
+   283→   283→// This makes it easy to add them back in the future if needed.
+   284→   284→dependencies {
+   285→   285→  implementation(platform(libs.androidx.compose.bom))
+   286→   286→  implementation(platform(libs.firebase.bom))
+   287→   287→  // implementation(libs.accompanist.permissions)
+   288→   288→  implementation(libs.androidx.activity.compose)
+   289→   289→  // implementation(libs.androidx.camera.camera2)
+   290→   290→  // implementation(libs.androidx.camera.core)
+   291→   291→  // implementation(libs.androidx.camera.lifecycle)
+   292→   292→  // implementation(libs.androidx.camera.view)
+   293→   293→  implementation(libs.androidx.compose.material.icons.core)
+   294→   294→  implementation(libs.androidx.compose.material.icons.extended)
+   295→   295→  implementation(libs.androidx.compose.material3)
+   296→   296→  implementation(libs.androidx.compose.ui)
+   297→   297→  implementation(libs.androidx.compose.ui.graphics)
+   298→   298→  implementation(libs.androidx.compose.ui.tooling.preview)
+   299→   299→  implementation(libs.androidx.core.ktx)
+   300→   300→  // implementation(libs.androidx.datastore.preferences)
+   301→   301→  implementation(libs.androidx.lifecycle.runtime.compose)
+   302→   302→  implementation(libs.androidx.lifecycle.runtime.ktx)
+   303→   303→  implementation(libs.androidx.lifecycle.viewmodel.compose)
+   304→   304→  // implementation(libs.androidx.navigation.compose)
+   305→   305→  implementation("androidx.navigation:navigation-compose:2.7.7")
+   306→   306→  implementation(libs.androidx.room.ktx)
+   307→   307→  implementation(libs.androidx.room.runtime)
+   308→   308→  implementation(libs.coil.compose)
+   309→   309→  implementation("com.google.accompanist:accompanist-drawablepainter:0.34.0")
+   310→   310→  implementation("androidx.documentfile:documentfile:1.0.1")
+   311→   311→  implementation(libs.converter.moshi)
+   312→   312→  implementation(libs.firebase.ai)
+   313→   313→  // Uncomment to use Firestore:
+   314→   314→  // implementation(libs.firebase.firestore)
+   315→   315→
+   316→   316→  // Uncomment ALL FOUR of the following dependencies together to use Firebase Auth and Google
+   317→   317→  // Sign-In via Credential Manager:
+   318→   318→  // implementation(libs.firebase.auth)
+   319→   319→  // implementation(libs.androidx.credentials)
+   320→   320→  // implementation(libs.androidx.credentials.play.services)
+   321→   321→  // implementation(libs.googleid)
+   322→   322→  implementation(libs.firebase.appcheck.recaptcha)
+   323→   323→  implementation(libs.kotlinx.coroutines.android)
+   324→   324→  implementation(libs.kotlinx.coroutines.core)
+   325→   325→  implementation(libs.logging.interceptor)
+   326→   326→  implementation(libs.moshi.kotlin)
+   327→   327→  implementation(libs.okhttp)
+   328→   328→  // implementation(libs.play.services.location)
+   329→   329→  implementation(libs.retrofit)
+   330→   330→  testImplementation(libs.androidx.compose.ui.test.junit4)
+   331→   331→  testImplementation(libs.androidx.core)
+   332→   332→  testImplementation(libs.androidx.junit)
+   333→   333→  testImplementation(libs.junit)
+   334→   334→  testImplementation(libs.kotlinx.coroutines.test)
+   335→   335→  testImplementation(libs.robolectric)
+   336→   336→  testImplementation(libs.roborazzi)
+   337→   337→  testImplementation(libs.roborazzi.compose)
+   338→   338→  testImplementation(libs.roborazzi.junit.rule)
+   339→   339→  androidTestImplementation(platform(libs.androidx.compose.bom))
+   340→   340→  androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+   341→   341→  androidTestImplementation(libs.androidx.espresso.core)
+   342→   342→  androidTestImplementation(libs.androidx.junit)
+   343→   343→  androidTestImplementation(libs.androidx.runner)
+   344→   344→  debugImplementation(libs.androidx.compose.ui.test.manifest)
+   345→   345→  debugImplementation(libs.androidx.compose.ui.tooling)
+   346→   346→  "ksp"(libs.androidx.room.compiler)
+   347→   347→  "ksp"(libs.moshi.kotlin.codegen)
+   348→   348→}
+   349→   349→
+   350→   350→
+   351→   351→================================================================================
+   352→   352→FILE: app/proguard-rules.pro
+   353→   353→================================================================================
+   354→   354→# Add project specific ProGuard rules here.
+   355→   355→# You can control the set of applied configuration files using the
+   356→   356→# proguardFiles setting in build.gradle.
+   357→   357→#
+   358→   358→# For more details, see
+   359→   359→#   http://developer.android.com/guide/developing/tools/proguard.html
+   360→   360→
+   361→   361→# If your project uses WebView with JS, uncomment the following
+   362→   362→# and specify the fully qualified class name to the JavaScript interface
+   363→   363→# class:
+   364→   364→#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+   365→   365→#   public *;
+   366→   366→#}
+   367→   367→
+   368→   368→# Uncomment this to preserve the line number information for
+   369→   369→# debugging stack traces.
+   370→   370→#-keepattributes SourceFile,LineNumberTable
+   371→   371→
+   372→   372→# If you keep the line number information, uncomment this to
+   373→   373→# hide the original source file name.
+   374→   374→#-renamesourcefileattribute SourceFile
+   375→   375→
+   376→   376→
+   377→   377→================================================================================
+   378→   378→FILE: app/src/androidTest/java/com/example/ExampleInstrumentedTest.kt
+   379→   379→================================================================================
+   380→   380→package com.example
+   381→   381→
+   382→   382→import androidx.test.ext.junit.runners.AndroidJUnit4
+   383→   383→import androidx.test.platform.app.InstrumentationRegistry
+   384→   384→import org.junit.Assert.*
+   385→   385→import org.junit.Test
+   386→   386→import org.junit.runner.RunWith
+   387→   387→
+   388→   388→/**
+   389→   389→ * Instrumented test, which will execute on an Android device.
+   390→   390→ *
+   391→   391→ * See [testing documentation](http://d.android.com/tools/testing).
+   392→   392→ */
+   393→   393→@RunWith(AndroidJUnit4::class)
+   394→   394→class ExampleInstrumentedTest {
+   395→   395→  @Test
+   396→   396→  fun useAppContext() {
+   397→   397→    // Context of the app under test.
+   398→   398→    val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+   399→   399→    assertEquals("com.example", appContext.packageName)
+   400→   400→  }
+   401→   401→}
+   402→   402→
+   403→   403→
+   404→   404→================================================================================
+   405→   405→FILE: app/src/main/AndroidManifest.xml
+   406→   406→================================================================================
+   407→   407→<?xml version="1.0" encoding="utf-8"?>
+   408→   408→<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+   409→   409→    xmlns:tools="http://schemas.android.com/tools">
+   410→   410→
+   411→   411→    <uses-permission android:name="android.permission.INTERNET" />
+   412→   412→    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+   413→   413→    <uses-permission android:name="android.permission.VIBRATE" />
+   414→   414→    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+   415→   415→        tools:ignore="QueryAllPackagesPermission" />
+   416→   416→    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+   417→   417→    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+   418→   418→    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+   419→   419→    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" tools:ignore="ScopedStorage" />
+   420→   420→    
+   421→   421→    <application
+   422→   422→        android:allowBackup="true"
+   423→   423→        android:dataExtractionRules="@xml/data_extraction_rules"
+   424→   424→        android:fullBackupContent="@xml/backup_rules"
+   425→   425→        android:icon="@mipmap/ic_launcher"
+   426→   426→        android:label="@string/app_name"
+   427→   427→        android:roundIcon="@mipmap/ic_launcher_round"
+   428→   428→        android:supportsRtl="true"
+   429→   429→        android:theme="@style/Theme.MyApplication">
+   430→   430→        <activity
+   431→   431→            android:name=".MainActivity"
+   432→   432→            android:exported="true"
+   433→   433→            android:screenOrientation="landscape"
+   434→   434→            android:label="@string/app_name"
+   435→   435→            android:theme="@style/Theme.MyApplication">
+   436→   436→            <intent-filter>
+   437→   437→                <action android:name="android.intent.action.MAIN" />
+   438→   438→
+   439→   439→                <category android:name="android.intent.category.LAUNCHER" />
+   440→   440→            </intent-filter>
+   441→   441→        </activity>
+   442→   442→    </application>
+   443→   443→
+   444→   444→</manifest>
+   445→   445→
+   446→   446→
+   447→   447→================================================================================
+   448→   448→FILE: app/src/main/java/com/example/AppScanner.kt
+   449→   449→================================================================================
+   450→   450→package com.example
+   451→   451→
+   452→   452→import android.content.Context
+   453→   453→import android.content.Intent
+   454→   454→import android.content.pm.PackageManager
+   455→   455→import android.content.pm.ResolveInfo
+   456→   456→import android.graphics.drawable.Drawable
+   457→   457→import kotlinx.coroutines.Dispatchers
+   458→   458→import kotlinx.coroutines.withContext
+   459→   459→
+   460→   460→data class AppInfo(
+   461→   461→    val name: String,
+   462→   462→    val packageName: String,
+   463→   463→    val icon: Drawable,
+   464→   464→    val isEmulator: Boolean = false
+   465→   465→)
+   466→   466→
+   467→   467→class AppScanner(private val context: Context) {
+   468→   468→    
+   469→   469→    // Known emulator package keywords for categorization
+   470→   470→    private val emulatorKeywords = listOf(
+   471→   471→        "retroarch", "emulator", "drastic", "citra", "azahar", "dolphin", 
+   472→   472→        "ppsspp", "yuzu", "suyu", "sudachi", "skyline", "eden", "aethersx2",
+   473→   473→        "nethersx2", "duckstation", "mupen64", "m64plus", "fzurita", "lime3ds",
+   474→   474→        "mandarine", "pizzaboy", "myboy", "myoldboy", "snes9x", "superretro",
+   475→   475→        "flycast", "redream", "vita3k", "melonds", "yaba", "epsxe", "fpse",
+   476→   476→        "lemuroid", "classicboy", "nes.emu", "gba.emu", "gbc.emu", "md.emu",
+   477→   477→        "snes9xex", "mame4droid", "neo.emu", "pce.emu"
+   478→   478→    )
+   479→   479→
+   480→   480→    suspend fun getInstalledApps(): List<AppInfo> = withContext(Dispatchers.IO) {
+   481→   481→        val pm = context.packageManager
+   482→   482→        val intent = Intent(Intent.ACTION_MAIN, null).apply {
+   483→   483→            addCategory(Intent.CATEGORY_LAUNCHER)
+   484→   484→        }
+   485→   485→        
+   486→   486→        val resolveInfos: List<ResolveInfo> = pm.queryIntentActivities(intent, 0)
+   487→   487→        
+   488→   488→        resolveInfos.mapNotNull { resolveInfo ->
+   489→   489→            try {
+   490→   490→                val packageName = resolveInfo.activityInfo.packageName
+   491→   491→                // Skip our own app
+   492→   492→                if (packageName == context.packageName) return@mapNotNull null
+   493→   493→                
+   494→   494→                val name = resolveInfo.loadLabel(pm).toString()
+   495→   495→                val icon = resolveInfo.loadIcon(pm)
+   496→   496→                
+   497→   497→                val isEmulator = emulatorKeywords.any { 
+   498→   498→                    packageName.lowercase().contains(it) || name.lowercase().contains(it)
+   499→   499→                }
+   500→   500→                
+   501→   501→                AppInfo(
+   502→   502→                    name = name,
+   503→   503→                    packageName = packageName,
+   504→   504→                    icon = icon,
+   505→   505→                    isEmulator = isEmulator
+   506→   506→                )
+   507→   507→            } catch (e: Exception) {
+   508→   508→                null
+   509→   509→            }
+   510→   510→        }.sortedBy { it.name }
+   511→   511→    }
+   512→   512→    
+   513→   513→    fun launchApp(packageName: String) {
+   514→   514→        try {
+   515→   515→            val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+   516→   516→            if (launchIntent != null) {
+   517→   517→                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+   518→   518→                context.startActivity(launchIntent)
+   519→   519→            }
+   520→   520→        } catch (e: Exception) {
+   521→   521→            e.printStackTrace()
+   522→   522→        }
+   523→   523→    }
+   524→   524→}
+   525→   525→
+   526→   526→
+   527→   527→================================================================================
+   528→   528→FILE: app/src/main/java/com/example/GameLauncherApp.kt
+   529→   529→================================================================================
+   530→   530→package com.example
+   531→   531→
+   532→   532→import android.net.Uri
+   533→   533→import androidx.activity.compose.BackHandler
+   534→   534→import androidx.activity.compose.rememberLauncherForActivityResult
+   535→   535→import androidx.activity.result.contract.ActivityResultContracts
+   536→   536→import androidx.compose.animation.AnimatedVisibility
+   537→   537→import androidx.compose.animation.fadeIn
+   538→   538→import androidx.compose.animation.fadeOut
+   539→   539→import androidx.compose.animation.slideInHorizontally
+   540→   540→import androidx.compose.animation.slideOutHorizontally
+   541→   541→import androidx.compose.animation.core.animateFloatAsState
+   542→   542→import androidx.compose.animation.core.rememberInfiniteTransition
+   543→   543→import androidx.compose.animation.core.animateFloat
+   544→   544→import androidx.compose.animation.core.infiniteRepeatable
+   545→   545→import androidx.compose.animation.core.RepeatMode
+   546→   546→import androidx.compose.animation.core.LinearEasing
+   547→   547→import androidx.compose.animation.core.FastOutSlowInEasing
+   548→   548→import androidx.compose.animation.core.FastOutLinearInEasing
+   549→   549→import androidx.compose.animation.core.tween
+   550→   550→import androidx.compose.ui.graphics.SolidColor
+   551→   551→import androidx.compose.foundation.BorderStroke
+   552→   552→import androidx.compose.foundation.Image
+   553→   553→import androidx.compose.foundation.background
+   554→   554→import androidx.compose.foundation.border
+   555→   555→import androidx.compose.foundation.clickable
+   556→   556→import androidx.compose.foundation.gestures.detectTapGestures
+   557→   557→import androidx.compose.foundation.gestures.detectDragGestures
+   558→   558→import androidx.compose.foundation.layout.*
+   559→   559→import androidx.compose.foundation.lazy.LazyRow
+   560→   560→import androidx.compose.foundation.lazy.items
+   561→   561→import androidx.compose.foundation.lazy.itemsIndexed
+   562→   562→import androidx.compose.foundation.lazy.grid.GridCells
+   563→   563→import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+   564→   564→import androidx.compose.foundation.lazy.grid.items
+   565→   565→import androidx.compose.foundation.lazy.rememberLazyListState
+   566→   566→import androidx.compose.foundation.shape.CircleShape
+   567→   567→import androidx.compose.foundation.shape.RoundedCornerShape
+   568→   568→import androidx.compose.material.icons.Icons
+   569→   569→import androidx.compose.material.icons.filled.*
+   570→   570→import androidx.compose.material3.*
+   571→   571→import androidx.compose.runtime.*
+   572→   572→import androidx.compose.runtime.saveable.rememberSaveable
+   573→   573→import androidx.compose.ui.Alignment
+   574→   574→import androidx.compose.ui.Modifier
+   575→   575→import androidx.compose.ui.draw.clip
+   576→   576→import androidx.compose.ui.draw.scale
+   577→   577→import androidx.compose.ui.draw.shadow
+   578→   578→import androidx.compose.ui.graphics.Brush
+   579→   579→import androidx.compose.ui.graphics.Color
+   580→   580→import androidx.compose.ui.graphics.vector.ImageVector
+   581→   581→import androidx.compose.ui.input.pointer.pointerInput
+   582→   582→import androidx.compose.ui.layout.ContentScale
+   583→   583→import androidx.compose.ui.platform.LocalContext
+   584→   584→import androidx.compose.ui.text.font.FontFamily
+   585→   585→import androidx.compose.ui.text.font.FontWeight
+   586→   586→import androidx.compose.ui.unit.dp
+   587→   587→import androidx.compose.ui.unit.sp
+   588→   588→import androidx.compose.ui.window.Dialog
+   589→   589→import androidx.lifecycle.viewmodel.compose.viewModel
+   590→   590→import androidx.navigation.compose.NavHost
+   591→   591→import androidx.navigation.compose.composable
+   592→   592→import androidx.navigation.compose.currentBackStackEntryAsState
+   593→   593→import androidx.navigation.compose.rememberNavController
+   594→   594→import coil.compose.AsyncImage
+   595→   595→import com.example.audio.SoundManager
+   596→   596→import com.example.database.GameEntity
+   597→   597→import com.example.ui.screens.CuratorScreen
+   598→   598→import com.example.ui.screens.LibraryScreen
+   599→   599→import com.example.ui.screens.SettingsScreen
+   600→   600→import com.example.ui.theme.*
+   601→   601→import kotlinx.coroutines.flow.collectLatest
+   602→   602→import kotlinx.coroutines.launch
+   603→   603→import java.text.SimpleDateFormat
+   604→   604→import java.util.*
+   605→   605→import android.view.KeyEvent
+   606→   606→
+   607→   607→fun getPlatformImageUrl(context: android.content.Context, platform: String, assetRootUriStr: String? = null): String {
+   608→   608→    val fallback = com.example.ui.theme.PlatformVisuals.getFastFallbackIconModel(context, platform)
+   609→   609→    if (fallback is String) {
+   610→   610→        return fallback
+   611→   611→    }
+   612→   612→    val style = com.example.ui.theme.PlatformVisuals.getStyle(platform)
+   613→   613→    return style.bannerUrl.ifBlank { "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Video_Game_Controller_Icon.svg/1200px-Video_Game_Controller_Icon.svg.png" }
+   614→   614→}
+   615→   615→
+   616→   616→@Composable
+   617→   617→fun GameLauncherScreen(viewModel: GameViewModel = viewModel()) {
+   618→   618→    val currentThemeFamilyIndex by viewModel.currentThemeFamilyIndex.collectAsState()
+   619→   619→    val isDarkTheme by viewModel.isDarkTheme.collectAsState()
+   620→   620→    val customWallpaper by viewModel.customWallpaperUri.collectAsState()
+   621→   621→    val selectedGame by viewModel.selectedGame.collectAsState()
+   622→   622→    val glassOpacity by viewModel.glassOpacity.collectAsState()
+   623→   623→
+   624→   624→    val currentThemeFamily = ThemeFamilies.getOrElse(currentThemeFamilyIndex) { ThemeFamilies.first() }
+   625→   625→    val currentTheme = if (isDarkTheme) currentThemeFamily.dark else currentThemeFamily.light
+   626→   626→
+   627→   627→    CompositionLocalProvider(LocalPegasusTheme provides currentTheme) {
+   628→   628→        androidx.compose.material3.MaterialTheme(colorScheme = currentTheme.toMaterialColorScheme()) {
+   629→   629→            var showSplashScreen by remember { mutableStateOf(true) }
+   630→   630→
+   631→   631→            if (showSplashScreen) {
+   632→   632→                com.example.ui.screens.SylphoraSplashScreen(
+   633→   633→                    onFinished = { showSplashScreen = false }
+   634→   634→                )
+   635→   635→            } else {
+   636→   636→            val context = LocalContext.current
+   637→   637→        val appScanner = remember { AppScanner(context) }
+   638→   638→        var installedApps by remember { mutableStateOf<List<AppInfo>>(emptyList()) }
+   639→   639→        var isLoadingApps by remember { mutableStateOf(true) }
+   640→   640→
+   641→   641→        val folderPickerLauncher = rememberLauncherForActivityResult(
+   642→   642→            contract = ActivityResultContracts.OpenDocumentTree()
+   643→   643→        ) { uri: Uri? ->
+   644→   644→            uri?.let { viewModel.startRomScan(it) }
+   645→   645→        }
+   646→   646→
+   647→   647→        var showGameDetail by remember { mutableStateOf<com.example.database.GameEntity?>(null) }
+   648→   648→        var showProfileDialog by remember { mutableStateOf(false) }
+   649→   649→
+   650→   650→        val navController = rememberNavController()
+   651→   651→        val navBackStackEntry by navController.currentBackStackEntryAsState()
+   652→   652→        val currentRoute = navBackStackEntry?.destination?.route ?: "home"
+   653→   653→        val currentRouteRef by rememberUpdatedState(currentRoute)
+   654→   654→
+   655→   655→        var dockInteractionToken by remember { mutableIntStateOf(0) }
+   656→   656→
+   657→   657→        BackHandler(enabled = currentRoute != "home") {
+   658→   658→            navController.navigate("home") {
+   659→   659→                popUpTo("home") { inclusive = false }
+   660→   660→            }
+   661→   661→        }
+   662→   662→
+   663→   663→        val sfxEnabled by viewModel.isSfxEnabled.collectAsState()
+   664→   664→        val bgmEnabled by viewModel.isBgmEnabled.collectAsState()
+   665→   665→        val bgmVolume by viewModel.bgmVolume.collectAsState()
+   666→   666→
+   667→   667→        LaunchedEffect(Unit) {
+   668→   668→            installedApps = appScanner.getInstalledApps()
+   669→   669→            isLoadingApps = false
+   670→   670→        }
+   671→   671→
+   672→   672→        LaunchedEffect(sfxEnabled, bgmEnabled, bgmVolume) {
+   673→   673→            SoundManager.init(sfxEnabled, bgmEnabled, bgmVolume)
+   674→   674→        }
+   675→   675→
+   676→   676→        // Hardware Gamepad Navigation Event Listener
+   677→   677→        LaunchedEffect(Unit) {
+   678→   678→            GlobalGamepadEvents.collect { keyCode ->
+   679→   679→                val route = currentRouteRef
+   680→   680→                when (keyCode) {
+   681→   681→                    KeyEvent.KEYCODE_MENU, KeyEvent.KEYCODE_BUTTON_START -> {
+   682→   682→                        dockInteractionToken++
+   683→   683→                    }
+   684→   684→                    KeyEvent.KEYCODE_BUTTON_B -> {
+   685→   685→                        if (route != "home") {
+   686→   686→                            dockInteractionToken++
+   687→   687→                            SoundManager.playBackSound(context)
+   688→   688→                            navController.navigate("home") {
+   689→   689→                                popUpTo("home") { inclusive = false }
+   690→   690→                            }
+   691→   691→                        }
+   692→   692→                    }
+   693→   693→                    KeyEvent.KEYCODE_BUTTON_X -> {
+   694→   694→                        dockInteractionToken++
+   695→   695→                        SoundManager.playSelectSound(context)
+   696→   696→                        navController.navigate("library") {
+   697→   697→                            popUpTo("home") { saveState = true }
+   698→   698→                            launchSingleTop = true
+   699→   699→                        }
+   700→   700→                    }
+   701→   701→                    KeyEvent.KEYCODE_BUTTON_Y -> {
+   702→   702→                        dockInteractionToken++
+   703→   703→                        SoundManager.playSelectSound(context)
+   704→   704→                        navController.navigate("ai") {
+   705→   705→                            popUpTo("home") { saveState = true }
+   706→   706→                            launchSingleTop = true
+   707→   707→                        }
+   708→   708→                    }
+   709→   709→                    KeyEvent.KEYCODE_BUTTON_L1 -> {
+   710→   710→                        dockInteractionToken++
+   711→   711→                        SoundManager.playSelectSound(context)
+   712→   712→                        val routes = listOf("home", "library", "ai", "research", "tools")
+   713→   713→                        val currentIdx = routes.indexOf(route)
+   714→   714→                        val prevIdx = if (currentIdx > 0) currentIdx - 1 else routes.size - 1
+   715→   715→                        navController.navigate(routes[prevIdx]) {
+   716→   716→                            popUpTo("home") { saveState = true }
+   717→   717→                            launchSingleTop = true
+   718→   718→                        }
+   719→   719→                    }
+   720→   720→                    KeyEvent.KEYCODE_BUTTON_R1 -> {
+   721→   721→                        dockInteractionToken++
+   722→   722→                        SoundManager.playSelectSound(context)
+   723→   723→                        val routes = listOf("home", "library", "ai", "research", "tools")
+   724→   724→                        val currentIdx = routes.indexOf(route)
+   725→   725→                        val nextIdx = (currentIdx + 1) % routes.size
+   726→   726→                        navController.navigate(routes[nextIdx]) {
+   727→   727→                            popUpTo("home") { saveState = true }
+   728→   728→                            launchSingleTop = true
+   729→   729→                        }
+   730→   730→                    }
+   731→   731→                }
+   732→   732→            }
+   733→   733→        }
+   734→   734→
+   735→   735→        Box(
+   736→   736→            modifier = Modifier
+   737→   737→                .fillMaxSize()
+   738→   738→                .background(currentTheme.background)
+   739→   739→        ) {
+   740→   740→            // Background Wallpaper: Selected Game Background > Custom Wallpaper > Fallback
+   741→   741→            val activeBackground = if (currentRoute == "home") {
+   742→   742→                selectedGame?.backgroundPath ?: selectedGame?.coverPath ?: customWallpaper
+   743→   743→            } else {
+   744→   744→                customWallpaper
+   745→   745→            }
+   746→   746→            
+   747→   747→            if (!activeBackground.isNullOrBlank()) {
+   748→   748→                androidx.compose.animation.Crossfade(targetState = activeBackground, label = "bg_crossfade") { bg ->
+   749→   749→                    AsyncImage(
+   750→   750→                        model = bg,
+   751→   751→                        contentDescription = "Background",
+   752→   752→                        contentScale = ContentScale.Crop,
+   753→   753→                        modifier = Modifier.fillMaxSize()
+   754→   754→                    )
+   755→   755→                }
+   756→   756→                // Frosted Glass Tint Overlay
+   757→   757→                Box(
+   758→   758→                    modifier = Modifier
+   759→   759→                        .fillMaxSize()
+   760→   760→                        .background(currentTheme.background.copy(alpha = glassOpacity))
+   761→   761→                )
+   762→   762→            } else {
+   763→   763→                // Keep the existing Sylphora background composition, but add a
+   764→   764→                // very restrained atmospheric layer so the scene feels alive
+   765→   765→                // without changing the established layout. Other themes keep
+   766→   766→                // their own existing background treatment.
+   767→   767→                Box(
+   768→   768→                    modifier = Modifier
+   769→   769→                        .fillMaxSize()
+   770→   770→                        .background(
+   771→   771→                            Brush.radialGradient(
+   772→   772→                                colors = listOf(
+   773→   773→                                    currentTheme.accent.copy(alpha = if (currentTheme.isDark) 0.15f else 0.08f),
+   774→   774→                                    currentTheme.background
+   775→   775→                                ),
+   776→   776→                                radius = 1000f
+   777→   777→                            )
+   778→   778→                        )
+   779→   779→                )
+   780→   780→                if (currentThemeFamilyIndex == 0) {
+   781→   781→                    SylphoraAmbientAtmosphere(
+   782→   782→                        isDark = currentTheme.isDark,
+   783→   783→                        modifier = Modifier.fillMaxSize()
+   784→   784→                    )
+   785→   785→                }
+   786→   786→            }
+   787→   787→
+   788→   788→            // Foreground Main App Shell: Router Navigation fills the entire container
+   789→   789→            Box(
+   790→   790→                modifier = Modifier
+   791→   791→                    .fillMaxSize()
+   792→   792→                    .windowInsetsPadding(WindowInsets.safeDrawing)
+   793→   793→            ) {
+   794→   794→                NavHost(navController = navController, startDestination = "home") {
+   795→   795→                    composable(
+   796→   796→                        "home",
+   797→   797→                        enterTransition = { fadeIn(tween(200)) + slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(200)) },
+   798→   798→                        exitTransition = { fadeOut(tween(150)) + slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(150)) }
+   799→   799→                    ) {
+   800→   800→                        HomeBody(
+   801→   801→                            viewModel = viewModel,
+   802→   802→                            currentTheme = currentTheme,
+   803→   803→                            currentThemeFamilyIndex = currentThemeFamilyIndex,
+   804→   804→                            folderPickerLauncher = folderPickerLauncher,
+   805→   805→                            onOpenProfile = { showProfileDialog = true },
+   806→   806→                            onOpenSettings = {
+   807→   807→                                navController.navigate("tools") { launchSingleTop = true }
+   808→   808→                            },
+   809→   809→                            onShowGameDetail = { game -> showGameDetail = game }
+   810→   810→                        )
+   811→   811→                    }
+   812→   812→                    composable(
+   813→   813→                        "library",
+   814→   814→                        enterTransition = { fadeIn(tween(200)) + slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(200)) },
+   815→   815→                        exitTransition = { fadeOut(tween(150)) + slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(150)) }
+   816→   816→                    ) {
+   817→   817→                        Box(
+   818→   818→                            modifier = Modifier
+   819→   819→                                .fillMaxSize()
+   820→   820→                        ) {
+   821→   821→                            if (isLoadingApps) {
+   822→   822→                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+   823→   823→                                    CircularProgressIndicator(color = currentTheme.accent)
+   824→   824→                                }
+   825→   825→                            } else {
+   826→   826→                                LibraryScreen(
+   827→   827→                                    viewModel = viewModel,
+   828→   828→                                    installedApps = installedApps,
+   829→   829→                                    onLaunchApp = { pkg -> appScanner.launchApp(pkg) }
+   830→   830→                                )
+   831→   831→                            }
+   832→   832→                        }
+   833→   833→                    }
+   834→   834→                    composable(
+   835→   835→                        "ai",
+   836→   836→                        enterTransition = { fadeIn(tween(200)) + slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(200)) },
+   837→   837→                        exitTransition = { fadeOut(tween(150)) + slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(150)) }
+   838→   838→                    ) {
+   839→   839→                        Box(
+   840→   840→                            modifier = Modifier
+   841→   841→                                .fillMaxSize()
+   842→   842→                        ) {
+   843→   843→                            if (currentThemeFamilyIndex == 5) {
+   844→   844→                                com.example.ui.theme.CyberpunkRobotCurator(viewModel = viewModel, theme = currentTheme)
+   845→   845→                            } else {
+   846→   846→                                CuratorScreen(viewModel = viewModel)
+   847→   847→                            }
+   848→   848→                        }
+   849→   849→                    }
+   850→   850→                    composable(
+   851→   851→                        "research",
+   852→   852→                        enterTransition = { fadeIn(tween(200)) + slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(200)) },
+   853→   853→                        exitTransition = { fadeOut(tween(150)) + slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(150)) }
+   854→   854→                    ) {
+   855→   855→                        Box(
+   856→   856→                            modifier = Modifier
+   857→   857→                                .fillMaxSize()
+   858→   858→                        ) {
+   859→   859→                            com.example.ui.screens.ResearchScreen(viewModel = viewModel)
+   860→   860→                        }
+   861→   861→                    }
+   862→   862→                    composable(
+   863→   863→                        "tools",
+   864→   864→                        enterTransition = { fadeIn(tween(200)) + slideInHorizontally(initialOffsetX = { it / 4 }, animationSpec = tween(200)) },
+   865→   865→                        exitTransition = { fadeOut(tween(150)) + slideOutHorizontally(targetOffsetX = { -it / 4 }, animationSpec = tween(150)) }
+   866→   866→                    ) {
+   867→   867→                        Box(
+   868→   868→                            modifier = Modifier
+   869→   869→                                .fillMaxSize()
+   870→   870→                        ) {
+   871→   871→                            SettingsScreen(viewModel = viewModel, onClose = { navController.navigate("home") { popUpTo("home") { inclusive = false }; launchSingleTop = true } })
+   872→   872→                        }
+   873→   873→                    }
+   874→   874→                }
+   875→   875→            }
+   876→   876→
+   877→   877→            // Floating navigation dock & swipe trigger
+   878→   878→            DockAndNav(
+   879→   879→                viewModel = viewModel,
+   880→   880→                currentTheme = currentTheme,
+   881→   881→                themeIndex = currentThemeFamilyIndex,
+   882→   882→                currentRoute = currentRoute,
+   883→   883→                dockInteractionToken = dockInteractionToken,
+   884→   884→                onNavigate = { route ->
+   885→   885→                    navController.navigate(route) {
+   886→   886→                        popUpTo("home") { saveState = true }
+   887→   887→                        launchSingleTop = true
+   888→   888→                        restoreState = true
+   889→   889→                    }
+   890→   890→                },
+   891→   891→                onTriggerDock = { dockInteractionToken++ },
+   892→   892→                modifier = Modifier.align(Alignment.BottomCenter)
+   893→   893→            )
+   894→   894→            
+   895→   895→            showGameDetail?.let { game ->
+   896→   896→                com.example.ui.screens.GameMuseumDetailDialog(
+   897→   897→                    game = game,
+   898→   898→                    onDismiss = { showGameDetail = null },
+   899→   899→                    viewModel = viewModel
+   900→   900→                )
+   901→   901→            }
+   902→   902→
+   903→   903→            if (showProfileDialog) {
+   904→   904→                PlayerProfileDialog(
+   905→   905→                    viewModel = viewModel,
+   906→   906→                    onDismiss = { showProfileDialog = false }
+   907→   907→                )
+   908→   908→            }
+   909→   909→
+   910→   910→            val activeEmulatorPicker by viewModel.activeEmulatorPicker.collectAsState()
+   911→   911→            val activeNoEmulatorDialog by viewModel.activeNoEmulatorDialog.collectAsState()
+   912→   912→
+   913→   913→            if (activeEmulatorPicker != null) {
+   914→   914→                com.example.ui.screens.EmulatorSelectionDialog(
+   915→   915→                    state = activeEmulatorPicker!!,
+   916→   916→                    onDismiss = { viewModel.activeEmulatorPicker.value = null },
+   917→   917→                    onSelectLauncher = { launcherId, setAsDefault ->
+   918→   918→                        viewModel.launchGameWithLauncher(context, activeEmulatorPicker!!.game, launcherId, setAsDefault)
+   919→   919→                    }
+   920→   920→                )
+   921→   921→            }
+   922→   922→
+   923→   923→            if (activeNoEmulatorDialog != null) {
+   924→   924→                com.example.ui.screens.NoEmulatorDialog(
+   925→   925→                    game = activeNoEmulatorDialog!!,
+   926→   926→                    onDismiss = { viewModel.activeNoEmulatorDialog.value = null }
+   927→   927→                )
+   928→   928→            }
+   929→   929→        }
+   930→   930→    }
+   931→   931→}
+   932→   932→}
+   933→   933→}
+   934→   934→
+   935→   935→@Composable
+   936→   936→private fun HomeBody(
+   937→   937→    viewModel: GameViewModel,
+   938→   938→    currentTheme: PegasusTheme,
+   939→   939→    currentThemeFamilyIndex: Int,
+   940→   940→    folderPickerLauncher: androidx.activity.result.ActivityResultLauncher<Uri?>,
+   941→   941→    onOpenProfile: () -> Unit,
+   942→   942→    onOpenSettings: () -> Unit,
+   943→   943→    onShowGameDetail: (com.example.database.GameEntity) -> Unit
+   944→   944→) {
+   945→   945→    val context = LocalContext.current
+   946→   946→    val games by viewModel.allGames.collectAsState()
+   947→   947→    val isScanning by viewModel.isScanning.collectAsState()
+   948→   948→    val scanProgressText by viewModel.scanProgressText.collectAsState()
+   949→   949→    val assetRootUri by viewModel.assetRootUri.collectAsState()
+   950→   950→    val userProfile by viewModel.userProfile.collectAsState()
+   951→   951→    val fontScale by viewModel.fontSize.collectAsState()
+   952→   952→
+   953→   953→    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+   954→   954→    var selectedPlatform by rememberSaveable { mutableStateOf<String?>(null) }
+   955→   955→
+   956→   956→    Column(
+   957→   957→        modifier = Modifier
+   958→   958→            .fillMaxSize()
+   959→   959→            .padding(
+   960→   960→                horizontal = if (currentThemeFamilyIndex == 0 || currentThemeFamilyIndex == 10) 0.dp else 18.dp,
+   961→   961→                vertical = if (currentThemeFamilyIndex == 0 || currentThemeFamilyIndex == 10) 0.dp else 2.dp
+   962→   962→            )
+   963→   963→    ) {
+   964→   964→        // Top Rail (Header) on Home (Omitted in Sylphora & Switch 2 themes as they have their own integrated capsule/top bar)
+   965→   965→        if (currentThemeFamilyIndex != 0 && currentThemeFamilyIndex != 10) {
+   966→   966→            TopRail(
+   967→   967→                viewModel = viewModel,
+   968→   968→                themeIndex = currentThemeFamilyIndex,
+   969→   969→                onOpenProfile = onOpenProfile
+   970→   970→            )
+   971→   971→        }
+   972→   972→
+   973→   973→        Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
+   974→   974→            if (isScanning) {
+   975→   975→                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+   976→   976→                    Column(
+   977→   977→                        horizontalAlignment = Alignment.CenterHorizontally,
+   978→   978→                        modifier = Modifier
+   979→   979→                            .clip(RoundedCornerShape(24.dp))
+   980→   980→                            .background(currentTheme.surface.copy(alpha = 0.85f))
+   981→   981→                            .border(1.dp, currentTheme.accent.copy(alpha = 0.3f), RoundedCornerShape(24.dp))
+   982→   982→                            .padding(36.dp)
+   983→   983→                    ) {
+   984→   984→                        CircularProgressIndicator(color = currentTheme.accent, modifier = Modifier.size(48.dp))
+   985→   985→                        Spacer(modifier = Modifier.height(20.dp))
+   986→   986→                        Text("AI 索引引擎運作中", color = currentTheme.textMain, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+   987→   987→                        Spacer(modifier = Modifier.height(8.dp))
+   988→   988→                        Text(scanProgressText, color = currentTheme.textSecondary, fontSize = 13.sp)
+   989→   989→                    }
+   990→   990→                }
+   991→   991→            } else if (games.isEmpty()) {
+   992→   992→                if (currentThemeFamilyIndex == 0) {
+   993→   993→                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+   994→   994→                        Column(
+   995→   995→                            horizontalAlignment = Alignment.CenterHorizontally,
+   996→   996→                            modifier = Modifier
+   997→   997→                                .clip(RoundedCornerShape(28.dp))
+   998→   998→                                .background(currentTheme.surface.copy(alpha = 0.7f))
+   999→   999→                                .border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(28.dp))
+  1000→  1000→                                .clickable { folderPickerLauncher.launch(null) }
+  1001→  1001→                                .padding(40.dp)
+  1002→  1002→                        ) {
+  1003→  1003→                            Icon(Icons.Filled.FolderOpen, contentDescription = null, tint = currentTheme.accent, modifier = Modifier.size(64.dp))
+  1004→  1004→                            Spacer(modifier = Modifier.height(16.dp))
+  1005→  1005→                            Text("歡迎使用 Sylphora", color = currentTheme.textMain, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+  1006→  1006→                            Spacer(modifier = Modifier.height(8.dp))
+  1007→  1007→                            Text("選擇 ROM 根目錄開始建立遊戲索引", color = currentTheme.textSecondary, fontSize = 14.sp)
+  1008→  1008→                        }
+  1009→  1009→                    }
+  1010→  1010→                } else {
+  1011→  1011→                    ThemeEmptyState(currentTheme, currentThemeFamilyIndex) { folderPickerLauncher.launch(null) }
+  1012→  1012→                }
+  1013→  1013→            } else {
+  1014→  1014→                val platformGroups = remember(games) {
+  1015→  1015→                    games.groupBy { it.platform.trim().ifBlank { "UNKNOWN" } }.toSortedMap(String.CASE_INSENSITIVE_ORDER)
+  1016→  1016→                }
+  1017→  1017→
+  1018→  1018→                val isPlatformView = selectedPlatform == null
+  1019→  1019→                val displayedGames = if (isPlatformView) {
+  1020→  1020→                    // Generate fake GameEntity objects to represent platforms
+  1021→  1021→                    platformGroups.keys.toList().mapIndexed { i, plat ->
+  1022→  1022→                        GameEntity(
+  1023→  1023→                            id = i,
+  1024→  1024→                            title = plat,
+  1025→  1025→                            platform = "PLATFORM_SELECTOR",
+  1026→  1026→                            romPath = plat,
+  1027→  1027→                            coverPath = getPlatformImageUrl(context, plat, assetRootUri),
+  1028→  1028→                            description = "點擊進入 ${plat} 遊戲庫，瀏覽與啟動您的收藏。",
+  1029→  1029→                            publisher = "${platformGroups[plat]?.size ?: 0} 遊戲",
+  1030→  1030→                            developer = "System"
+  1031→  1031→                        )
+  1032→  1032→                    }
+  1033→  1033→                } else {
+  1034→  1034→                    platformGroups[selectedPlatform].orEmpty()
+  1035→  1035→                }
+  1036→  1036→
+  1037→  1037→                val safeIndex = selectedIndex.coerceIn(0, (displayedGames.size - 1).coerceAtLeast(0))
+  1038→  1038→
+  1039→  1039→                Column(Modifier.fillMaxSize()) {
+  1040→  1040→                    // Header or Back Button if viewing games (themes 0 and 10 have integrated back buttons)
+  1041→  1041→                    if (!isPlatformView && currentThemeFamilyIndex != 0 && currentThemeFamilyIndex != 10) {
+  1042→  1042→                        Row(
+  1043→  1043→                            modifier = Modifier
+  1044→  1044→                                .fillMaxWidth()
+  1045→  1045→                                .padding(horizontal = 14.dp, vertical = 2.dp)
+  1046→  1046→                                .clickable {
+  1047→  1047→                                    selectedPlatform = null
+  1048→  1048→                                    selectedIndex = 0
+  1049→  1049→                                }
+  1050→  1050→                                .padding(vertical = 8.dp),
+  1051→  1051→                            verticalAlignment = Alignment.CenterVertically
+  1052→  1052→                        ) {
+  1053→  1053→                            Icon(
+  1054→  1054→                                Icons.Filled.ArrowBack,
+  1055→  1055→                                contentDescription = "Back to Platforms",
+  1056→  1056→                                tint = currentTheme.textMain,
+  1057→  1057→                                modifier = Modifier.size(20.dp)
+  1058→  1058→                            )
+  1059→  1059→                            Spacer(Modifier.width(8.dp))
+  1060→  1060→                            Text(
+  1061→  1061→                                "回到平台列表 (${selectedPlatform})",
+  1062→  1062→                                color = currentTheme.textMain,
+  1063→  1063→                                fontSize = 14.sp,
+  1064→  1064→                                fontWeight = FontWeight.Bold
+  1065→  1065→                            )
+  1066→  1066→                        }
+  1067→  1067→                    }
+  1068→  1068→
+  1069→  1069→                    Box(modifier = Modifier.weight(1f)) {
+  1070→  1070→                        ThemeExperienceHome(
+  1071→  1071→                            theme = currentTheme,
+  1072→  1072→                            themeIndex = currentThemeFamilyIndex,
+  1073→  1073→                            fontScale = fontScale.scale,
+  1074→  1074→                            games = displayedGames,
+  1075→  1075→                            selectedIndex = safeIndex,
+  1076→  1076→                            userProfile = userProfile,
+  1077→  1077→                            onGameSelected = { index -> 
+  1078→  1078→                                val clicked = displayedGames.getOrNull(index)
+  1079→  1079→                                if (selectedIndex == index && clicked != null) {
+  1080→  1080→                                    if (clicked.platform == "PLATFORM_SELECTOR") {
+  1081→  1081→                                        selectedPlatform = clicked.romPath
+  1082→  1082→                                        selectedIndex = 0
+  1083→  1083→                                    } else {
+  1084→  1084→                                        onShowGameDetail(clicked)
+  1085→  1085→                                    }
+  1086→  1086→                                } else {
+  1087→  1087→                                    selectedIndex = index 
+  1088→  1088→                                    if (clicked != null && clicked.platform != "PLATFORM_SELECTOR") {
+  1089→  1089→                                        viewModel.setSelectedGame(clicked)
+  1090→  1090→                                    }
+  1091→  1091→                                }
+  1092→  1092→                            },
+  1093→  1093→                            onLaunch = { game ->
+  1094→  1094→                                if (game.platform == "PLATFORM_SELECTOR") {
+  1095→  1095→                                    selectedPlatform = game.romPath
+  1096→  1096→                                    selectedIndex = 0
+  1097→  1097→                                } else {
+  1098→  1098→                                    viewModel.recordGameLaunch(game, context)
+  1099→  1099→                                }
+  1100→  1100→                            },
+  1101→  1101→                            onOpenSettings = onOpenSettings,
+  1102→  1102→                            onOpenProfile = onOpenProfile,
+  1103→  1103→                            onBack = if (!isPlatformView) {
+  1104→  1104→                                {
+  1105→  1105→                                    selectedPlatform = null
+  1106→  1106→                                    selectedIndex = 0
+  1107→  1107→                                }
+  1108→  1108→                            } else null
+  1109→  1109→                        )
+  1110→  1110→                    }
+  1111→  1111→                }
+  1112→  1112→            }
+  1113→  1113→        }
+  1114→  1114→    }
+  1115→  1115→}
+  1116→  1116→
+  1117→  1117→@Composable
+  1118→  1118→private fun DockAndNav(
+  1119→  1119→    viewModel: GameViewModel,
+  1120→  1120→    currentTheme: PegasusTheme,
+  1121→  1121→    themeIndex: Int,
+  1122→  1122→    currentRoute: String,
+  1123→  1123→    dockInteractionToken: Int,
+  1124→  1124→    onNavigate: (String) -> Unit,
+  1125→  1125→    onTriggerDock: () -> Unit,
+  1126→  1126→    modifier: Modifier = Modifier
+  1127→  1127→) {
+  1128→  1128→    val isScanning by viewModel.isScanning.collectAsState()
+  1129→  1129→
+  1130→  1130→    Box(modifier = modifier) {
+  1131→  1131→        // Floating navigation dock: overlays the content instead of taking layout height.
+  1132→  1132→        BottomDock(
+  1133→  1133→            themeIndex = themeIndex,
+  1134→  1134→            currentRoute = currentRoute,
+  1135→  1135→            onNavigate = onNavigate,
+  1136→  1136→            forceVisible = isScanning,
+  1137→  1137→            interactionToken = dockInteractionToken,
+  1138→  1138→            modifier = Modifier.align(Alignment.BottomCenter)
+  1139→  1139→        )
+  1140→  1140→
+  1141→  1141→        // 從底部滑動可暫時顯示浮動 Dock。
+  1142→  1142→        // 48dp 高度搭配中央握把，提供足夠的觸控目標。
+  1143→  1143→        Box(
+  1144→  1144→            modifier = Modifier
+  1145→  1145→                .align(Alignment.BottomCenter)
+  1146→  1146→                .fillMaxWidth()
+  1147→  1147→                .height(48.dp)
+  1148→  1148→                .pointerInput(Unit) {
+  1149→  1149→                    detectDragGestures(
+  1150→  1150→                        onDragEnd = { onTriggerDock() },
+  1151→  1151→                        onDragCancel = {},
+  1152→  1152→                        onDrag = { _, _ -> }
+  1153→  1153→                    )
+  1154→  1154→                },
+  1155→  1155→            contentAlignment = Alignment.BottomCenter
+  1156→  1156→        ) {
+  1157→  1157→            Box(
+  1158→  1158→                modifier = Modifier
+  1159→  1159→                    .padding(bottom = 6.dp)
+  1160→  1160→                    .width(48.dp)
+  1161→  1161→                    .height(4.dp)
+  1162→  1162→                    .clip(RoundedCornerShape(2.dp))
+  1163→  1163→                    .background(currentTheme.accent.copy(alpha = 0.35f))
+  1164→  1164→            )
+  1165→  1165→        }
+  1166→  1166→    }
+  1167→  1167→}
+  1168→  1168→
+  1169→  1169→@Composable
+  1170→  1170→fun TopRail(viewModel: GameViewModel, themeIndex: Int, onOpenProfile: () -> Unit) {
+  1171→  1171→    val theme = LocalPegasusTheme.current
+  1172→  1172→    val context = androidx.compose.ui.platform.LocalContext.current
+  1173→  1173→    val isDark by viewModel.isDarkTheme.collectAsState()
+  1174→  1174→    val userProfile by viewModel.userProfile.collectAsState()
+  1175→  1175→    var currentTime by remember { mutableStateOf("") }
+  1176→  1176→    LaunchedEffect(Unit) {
+  1177→  1177→        val sdf = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
+  1178→  1178→        while (true) {
+  1179→  1179→            currentTime = sdf.format(Date()).uppercase()
+  1180→  1180→            kotlinx.coroutines.delay(1000L)
+  1181→  1181→        }
+  1182→  1182→    }
+  1183→  1183→
+  1184→  1184→    Row(
+  1185→  1185→        modifier = Modifier
+  1186→  1186→            .fillMaxWidth()
+  1187→  1187→            .padding(horizontal = 24.dp, vertical = 6.dp),
+  1188→  1188→        horizontalArrangement = Arrangement.SpaceBetween,
+  1189→  1189→        verticalAlignment = Alignment.CenterVertically
+  1190→  1190→    ) {
+  1191→  1191→        // Left rail: SYLPHORA tracked title & time indicator
+  1192→  1192→        Row(
+  1193→  1193→            verticalAlignment = Alignment.CenterVertically,
+  1194→  1194→            horizontalArrangement = Arrangement.spacedBy(16.dp)
+  1195→  1195→        ) {
+  1196→  1196→            Row(
+  1197→  1197→                modifier = Modifier
+  1198→  1198→                    .clip(RoundedCornerShape(12.dp))
+  1199→  1199→                    .background(theme.surface.copy(alpha = 0.72f))
+  1200→  1200→                    .border(1.dp, theme.accent.copy(alpha = 0.16f), RoundedCornerShape(12.dp))
+  1201→  1201→                    .padding(horizontal = 10.dp, vertical = 4.dp),
+  1202→  1202→                verticalAlignment = Alignment.CenterVertically,
+  1203→  1203→                horizontalArrangement = Arrangement.spacedBy(6.dp)
+  1204→  1204→            ) {
+  1205→  1205→                Icon(Icons.Filled.AccessTime, contentDescription = null, tint = theme.accent, modifier = Modifier.size(14.dp))
+  1206→  1206→                Text(currentTime, color = theme.textMain, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+  1207→  1207→            }
+  1208→  1208→        }
+  1209→  1209→
+  1210→  1210→        // Right rail: enlarged avatar profile & quick Light/Dark toggle
+  1211→  1211→        Row(
+  1212→  1212→            verticalAlignment = Alignment.CenterVertically,
+  1213→  1213→            horizontalArrangement = Arrangement.spacedBy(10.dp)
+  1214→  1214→        ) {
+  1215→  1215→            // Quick Dark/Light Mode Switcher
+  1216→  1216→            IconButton(
+  1217→  1217→                onClick = {
+  1218→  1218→                    SoundManager.playSelectSound(context)
+  1219→  1219→                    viewModel.toggleDarkTheme()
+  1220→  1220→                },
+  1221→  1221→                modifier = Modifier
+  1222→  1222→                    .size(36.dp)
+  1223→  1223→                    .clip(CircleShape)
+  1224→  1224→                    .background(theme.surface.copy(alpha = if (theme.isDark) 0.2f else 0.9f))
+  1225→  1225→                    .border(
+  1226→  1226→                        1.dp,
+  1227→  1227→                        if (theme.isDark) SylphoraCelestialPurple.copy(alpha = 0.20f) else Color(0xFF80CBC4),
+  1228→  1228→                        CircleShape
+  1229→  1229→                    )
+  1230→  1230→            ) {
+  1231→  1231→                Icon(
+  1232→  1232→                    imageVector = if (isDark) Icons.Filled.LightMode else Icons.Filled.DarkMode,
+  1233→  1233→                    contentDescription = if (isDark) "切換為淺色模式" else "切換為深色模式",
+  1234→  1234→                    tint = if (theme.isDark) SylphoraPrimaryCyan else Color(0xFF00695C),
+  1235→  1235→                    modifier = Modifier.size(18.dp)
+  1236→  1236→                )
+  1237→  1237→            }
+  1238→  1238→
+  1239→  1239→            if (themeIndex == 0) {
+  1240→  1240→                // Variant C Pill
+  1241→  1241→                Row(
+  1242→  1242→                    modifier = Modifier
+  1243→  1243→                        .clip(CircleShape)
+  1244→  1244→                        .background(theme.surface.copy(alpha = if (theme.isDark) 0.2f else 0.9f))
+  1245→  1245→                        .border(
+  1246→  1246→                            1.dp,
+  1247→  1247→                            if (theme.isDark) SylphoraCelestialPurple.copy(alpha = 0.20f) else Color(0xFF80CBC4),
+  1248→  1248→                            CircleShape
+  1249→  1249→                        )
+  1250→  1250→                        .shadow(
+  1251→  1251→                            elevation = 15.dp,
+  1252→  1252→                            shape = CircleShape,
+  1253→  1253→                            ambientColor = if (theme.isDark) SylphoraCelestialPurple.copy(alpha = 0.15f) else Color(0xFF00838F).copy(alpha = 0.15f),
+  1254→  1254→                            spotColor = if (theme.isDark) SylphoraCelestialPurple.copy(alpha = 0.25f) else Color(0xFF00838F).copy(alpha = 0.20f)
+  1255→  1255→                        )
+  1256→  1256→                        .clickable(onClick = onOpenProfile)
+  1257→  1257→                        .padding(start = 16.dp, end = 6.dp, top = 5.dp, bottom = 5.dp),
+  1258→  1258→                    verticalAlignment = Alignment.CenterVertically,
+  1259→  1259→                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+  1260→  1260→                ) {
+  1261→  1261→                    Text(
+  1262→  1262→                        text = currentTime,
+  1263→  1263→                        color = if (theme.isDark) SylphoraPrimaryCyan.copy(alpha = 0.80f) else Color(0xFF004D40),
+  1264→  1264→                        fontSize = 12.sp,
+  1265→  1265→                        fontWeight = FontWeight.Medium,
+  1266→  1266→                        letterSpacing = 1.sp
+  1267→  1267→                    )
+  1268→  1268→
+  1269→  1269→                    Box(
+  1270→  1270→                        modifier = Modifier
+  1271→  1271→                            .size(30.dp)
+  1272→  1272→                            .clip(CircleShape)
+  1273→  1273→                            .background(if (theme.isDark) Color(0xFF0F0A1E) else Color(0xFFE0F2F1))
+  1274→  1274→                            .border(
+  1275→  1275→                                1.dp,
+  1276→  1276→                                if (theme.isDark) SylphoraCelestialPurple.copy(alpha = 0.40f) else Color(0xFF80CBC4),
+  1277→  1277→                                CircleShape
+  1278→  1278→                            )
+  1279→  1279→                            .shadow(
+  1280→  1280→                                10.dp,
+  1281→  1281→                                shape = CircleShape,
+  1282→  1282→                                ambientColor = if (theme.isDark) SylphoraCelestialPurple.copy(alpha = 0.30f) else Color(0xFF00838F).copy(alpha = 0.20f)
+  1283→  1283→                            ),
+  1284→  1284→                        contentAlignment = Alignment.Center
+  1285→  1285→                    ) {
+  1286→  1286→                        Text("🌸", fontSize = 15.sp)
+  1287→  1287→                    }
+  1288→  1288→                }
+  1289→  1289→            } else {
+  1290→  1290→                Row(
+  1291→  1291→                    modifier = Modifier
+  1292→  1292→                        .clip(RoundedCornerShape(16.dp))
+  1293→  1293→                        .background(theme.surface.copy(alpha = 0.78f))
+  1294→  1294→                        .border(1.dp, theme.accent.copy(alpha = 0.20f), RoundedCornerShape(16.dp))
+  1295→  1295→                        .clickable(onClick = onOpenProfile)
+  1296→  1296→                        .padding(horizontal = 12.dp, vertical = 4.dp),
+  1297→  1297→                    verticalAlignment = Alignment.CenterVertically,
+  1298→  1298→                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+  1299→  1299→                ) {
+  1300→  1300→                    Box(
+  1301→  1301→                        modifier = Modifier
+  1302→  1302→                            .size(32.dp)
+  1303→  1303→                            .clip(CircleShape)
+  1304→  1304→                            .background(theme.accent.copy(alpha = 0.25f))
+  1305→  1305→                            .border(1.5.dp, theme.accent, CircleShape),
+  1306→  1306→                        contentAlignment = Alignment.Center
+  1307→  1307→                    ) {
+  1308→  1308→                        val emoji = when (userProfile.avatarType) {
+  1309→  1309→                            "pixel_wizard" -> "🧙"
+  1310→  1310→                            "pixel_cyber" -> "⚡"
+  1311→  1311→                            "pixel_robot" -> "🤖"
+  1312→  1312→                            "pixel_dragon" -> "🐉"
+  1313→  1313→                            else -> "🗡️"
+  1314→  1314→                        }
+  1315→  1315→                        Text(emoji, fontSize = 16.sp)
+  1316→  1316→                    }
+  1317→  1317→
+  1318→  1318→                    Column {
+  1319→  1319→                        Text(userProfile.username, color = theme.textMain, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+  1320→  1320→                        Text(userProfile.title, color = theme.accent, fontSize = 10.sp)
+  1321→  1321→                    }
+  1322→  1322→                }
+  1323→  1323→            }
+  1324→  1324→        }
+  1325→  1325→    }
+  1326→  1326→}
+  1327→  1327→
+  1328→  1328→@Composable
+  1329→  1329→private fun PlatformSelector(
+  1330→  1330→    theme: PegasusTheme,
+  1331→  1331→    platforms: Map<String, List<GameEntity>>,
+  1332→  1332→    themeIndex: Int,
+  1333→  1333→    onSelect: (String) -> Unit
+  1334→  1334→) {
+  1335→  1335→    Column(
+  1336→  1336→        modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 4.dp)
+  1337→  1337→    ) {
+  1338→  1338→        Column(Modifier.padding(horizontal = 10.dp)) {
+  1339→  1339→            Text(
+  1340→  1340→                text = when (themeIndex) {
+  1341→  1341→                    0 -> "探索你的世界"
+  1342→  1342→                    1 -> "PLATFORMS"
+  1343→  1343→                    2 -> "遊戲平台典藏"
+  1344→  1344→                    3 -> "SYSTEM SELECT"
+  1345→  1345→                    4 -> "CHOOSE YOUR PLATFORM"
+  1346→  1346→                    5 -> "// PLATFORM_GATE"
+  1347→  1347→                    6 -> "選擇遊戲主機"
+  1348→  1348→                    else -> "SELECT PLATFORM"
+  1349→  1349→                },
+  1350→  1350→                color = theme.accent,
+  1351→  1351→                fontSize = if (themeIndex == 0) 15.sp else 12.sp,
+  1352→  1352→                fontWeight = FontWeight.Bold
+  1353→  1353→            )
+  1354→  1354→            Spacer(Modifier.height(3.dp))
+  1355→  1355→            Text(
+  1356→  1356→                text = "先選擇平台，再進入遊戲庫",
+  1357→  1357→                color = theme.textMain,
+  1358→  1358→                fontSize = if (themeIndex == 0) 30.sp else 24.sp,
+  1359→  1359→                fontWeight = FontWeight.Black
+  1360→  1360→            )
+  1361→  1361→        }
+  1362→  1362→        Spacer(Modifier.height(12.dp))
+  1363→  1363→        LazyVerticalGrid(
+  1364→  1364→            columns = GridCells.Adaptive(minSize = 210.dp),
+  1365→  1365→            modifier = Modifier.fillMaxSize(),
+  1366→  1366→            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
+  1367→  1367→            horizontalArrangement = Arrangement.spacedBy(14.dp),
+  1368→  1368→            verticalArrangement = Arrangement.spacedBy(14.dp)
+  1369→  1369→        ) {
+  1370→  1370→            items(platforms.keys.toList(), key = { it }) { platform ->
+  1371→  1371→                val platformGames = platforms[platform].orEmpty()
+  1372→  1372→                val hero = platformGames.firstOrNull { !it.backgroundPath.isNullOrBlank() }
+  1373→  1373→                    ?: platformGames.firstOrNull { !it.coverPath.isNullOrBlank() }
+  1374→  1374→                val image = hero?.backgroundPath ?: hero?.coverPath
+  1375→  1375→                val shape = RoundedCornerShape(if (themeIndex == 0) 28.dp else 18.dp)
+  1376→  1376→                Card(
+  1377→  1377→                    modifier = Modifier
+  1378→  1378→                        .fillMaxWidth()
+  1379→  1379→                        .height(if (themeIndex == 0) 190.dp else 165.dp)
+  1380→  1380→                        .clickable { onSelect(platform) },
+  1381→  1381→                    shape = shape,
+  1382→  1382→                    colors = CardDefaults.cardColors(containerColor = theme.surface.copy(alpha = if (themeIndex == 0) 0.48f else 0.90f)),
+  1383→  1383→                    border = BorderStroke(1.dp, theme.accent.copy(alpha = if (themeIndex == 0) 0.38f else 0.20f)),
+  1384→  1384→                    elevation = CardDefaults.cardElevation(if (themeIndex == 0) 10.dp else 5.dp)
+  1385→  1385→                ) {
+  1386→  1386→                    Box(Modifier.fillMaxSize()) {
+  1387→  1387→                        if (!image.isNullOrBlank()) {
+  1388→  1388→                            AsyncImage(
+  1389→  1389→                                model = image,
+  1390→  1390→                                contentDescription = platform,
+  1391→  1391→                                contentScale = ContentScale.Crop,
+  1392→  1392→                                modifier = Modifier.fillMaxSize().clip(shape)
+  1393→  1393→                            )
+  1394→  1394→                            Box(
+  1395→  1395→                                Modifier.fillMaxSize().background(
+  1396→  1396→                                    Brush.verticalGradient(
+  1397→  1397→                                        listOf(Color.Transparent, theme.background.copy(alpha = 0.92f))
+  1398→  1398→                                    )
+  1399→  1399→                                )
+  1400→  1400→                            )
+  1401→  1401→                        } else {
+  1402→  1402→                            Box(
+  1403→  1403→                                Modifier.fillMaxSize().background(
+  1404→  1404→                                    Brush.radialGradient(
+  1405→  1405→                                        colors = listOf(theme.accent.copy(alpha = 0.24f), theme.surface),
+  1406→  1406→                                        radius = 400f
+  1407→  1407→                                    )
+  1408→  1408→                                )
+  1409→  1409→                            )
+  1410→  1410→                        }
+  1411→  1411→                        Column(
+  1412→  1412→                            Modifier.align(Alignment.BottomStart).padding(16.dp)
+  1413→  1413→                        ) {
+  1414→  1414→                            Text(platform, color = theme.textMain, fontSize = 20.sp, fontWeight = FontWeight.Black, maxLines = 1)
+  1415→  1415→                            Text("${platformGames.size} 款遊戲", color = theme.textSecondary, fontSize = 11.sp)
+  1416→  1416→                        }
+  1417→  1417→                        Box(
+  1418→  1418→                            Modifier.align(Alignment.TopEnd).padding(12.dp).size(34.dp).clip(CircleShape)
+  1419→  1419→                                .background(theme.background.copy(alpha = 0.58f))
+  1420→  1420→                                .border(1.dp, theme.accent.copy(alpha = 0.45f), CircleShape),
+  1421→  1421→                            contentAlignment = Alignment.Center
+  1422→  1422→                        ) {
+  1423→  1423→                            Icon(Icons.Filled.ChevronRight, contentDescription = "進入 $platform", tint = theme.accent)
+  1424→  1424→                        }
+  1425→  1425→                    }
+  1426→  1426→                }
+  1427→  1427→            }
+  1428→  1428→        }
+  1429→  1429→    }
+  1430→  1430→}
+  1431→  1431→
+  1432→  1432→@Composable
+  1433→  1433→fun PlayerProfileDialog(viewModel: GameViewModel, onDismiss: () -> Unit) {
+  1434→  1434→    val theme = LocalPegasusTheme.current
+  1435→  1435→    val userProfile by viewModel.userProfile.collectAsState()
+  1436→  1436→    val health = viewModel.calculateHealth()
+  1437→  1437→    val achievements = viewModel.getAchievements()
+  1438→  1438→
+  1439→  1439→    Dialog(onDismissRequest = onDismiss) {
+  1440→  1440→        Box(
+  1441→  1441→            modifier = Modifier
+  1442→  1442→                .fillMaxWidth(0.95f)
+  1443→  1443→                .clip(RoundedCornerShape(28.dp))
+  1444→  1444→                .background(theme.background)
+  1445→  1445→                .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(28.dp))
+  1446→  1446→                .padding(24.dp)
+  1447→  1447→        ) {
+  1448→  1448→            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+  1449→  1449→                // Header
+  1450→  1450→                Row(
+  1451→  1451→                    modifier = Modifier.fillMaxWidth(),
+  1452→  1452→                    horizontalArrangement = Arrangement.SpaceBetween,
+  1453→  1453→                    verticalAlignment = Alignment.CenterVertically
+  1454→  1454→                ) {
+  1455→  1455→                    Text("玩家檔案", color = theme.textMain, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+  1456→  1456→                    SylphoraIconButton(onClick = onDismiss) {
+  1457→  1457→                        Icon(Icons.Filled.Close, contentDescription = "關閉", tint = theme.textMain)
+  1458→  1458→                    }
+  1459→  1459→                }
+  1460→  1460→
+  1461→  1461→                // Profile Hero
+  1462→  1462→                Row(
+  1463→  1463→                    modifier = Modifier
+  1464→  1464→                        .fillMaxWidth()
+  1465→  1465→                        .clip(RoundedCornerShape(20.dp))
+  1466→  1466→                        .background(Brush.horizontalGradient(listOf(theme.surface, theme.cardStart)))
+  1467→  1467→                        .padding(16.dp),
+  1468→  1468→                    verticalAlignment = Alignment.CenterVertically,
+  1469→  1469→                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+  1470→  1470→                ) {
+  1471→  1471→                    val emoji = when (userProfile.avatarType) {
+  1472→  1472→                        "pixel_wizard" -> "🧙"
+  1473→  1473→                        "pixel_cyber" -> "⚡"
+  1474→  1474→                        "pixel_robot" -> "🤖"
+  1475→  1475→                        "pixel_dragon" -> "🐉"
+  1476→  1476→                        else -> "🗡️"
+  1477→  1477→                    }
+  1478→  1478→                    Box(
+  1479→  1479→                        modifier = Modifier
+  1480→  1480→                            .size(64.dp)
+  1481→  1481→                            .clip(CircleShape)
+  1482→  1482→                            .background(theme.accent.copy(alpha = 0.2f))
+  1483→  1483→                            .border(2.dp, theme.accent, CircleShape),
+  1484→  1484→                        contentAlignment = Alignment.Center
+  1485→  1485→                    ) {
+  1486→  1486→                        Text(emoji, fontSize = 32.sp)
+  1487→  1487→                    }
+  1488→  1488→
+  1489→  1489→                    Column(modifier = Modifier.weight(1f)) {
+  1490→  1490→                        Text(userProfile.username, color = theme.textMain, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+  1491→  1491→                        Text(userProfile.title, color = theme.accent, fontSize = 13.sp)
+  1492→  1492→                        Spacer(modifier = Modifier.height(6.dp))
+  1493→  1493→                        Text("總遊戲收藏: ${health.totalGames} 款 · 健康度: ${health.score.toInt()}%", color = theme.textSecondary, fontSize = 12.sp)
+  1494→  1494→                    }
+  1495→  1495→                }
+  1496→  1496→
+  1497→  1497→                // Unlocked Achievements Mini List
+  1498→  1498→                Text("🏆 近期解鎖成就", color = theme.textMain, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+  1499→  1499→                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+  1500→  1500→                    achievements.take(2).forEach { ach ->
+  1501→  1501→                        Row(
+  1502→  1502→                            modifier = Modifier
+  1503→  1503→                                .fillMaxWidth()
+  1504→  1504→                                .clip(RoundedCornerShape(12.dp))
+  1505→  1505→                                .background(theme.surface.copy(alpha = 0.5f))
+  1506→  1506→                                .padding(12.dp),
+  1507→  1507→                            verticalAlignment = Alignment.CenterVertically,
+  1508→  1508→                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+  1509→  1509→                        ) {
+  1510→  1510→                            Text(ach.icon, fontSize = 22.sp)
+  1511→  1511→                            Column(modifier = Modifier.weight(1f)) {
+  1512→  1512→                                Text(ach.title, color = theme.textMain, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+  1513→  1513→                                Text(ach.description, color = theme.textSecondary, fontSize = 11.sp)
+  1514→  1514→                            }
+  1515→  1515→                        }
+  1516→  1516→                    }
+  1517→  1517→                }
+  1518→  1518→
+  1519→  1519→                SylphoraButton(
+  1520→  1520→                    onClick = onDismiss,
+  1521→  1521→                    colors = ButtonDefaults.buttonColors(containerColor = theme.accent),
+  1522→  1522→                    modifier = Modifier.fillMaxWidth().height(46.dp),
+  1523→  1523→                    shape = RoundedCornerShape(14.dp)
+  1524→  1524→                ) {
+  1525→  1525→                    Text("返回", color = theme.background, fontWeight = FontWeight.Bold)
+  1526→  1526→                }
+  1527→  1527→            }
+  1528→  1528→        }
+  1529→  1529→    }
+  1530→  1530→}
+  1531→  1531→
+  1532→  1532→@Composable
+  1533→  1533→fun GameCarousel(
+  1534→  1534→    games: List<GameEntity>,
+  1535→  1535→    selectedIndex: Int,
+  1536→  1536→    onGameSelected: (Int) -> Unit,
+  1537→  1537→    listState: androidx.compose.foundation.lazy.LazyListState
+  1538→  1538→) {
+  1539→  1539→    val theme = LocalPegasusTheme.current
+  1540→  1540→    LazyRow(
+  1541→  1541→        state = listState,
+  1542→  1542→        modifier = Modifier.fillMaxWidth(),
+  1543→  1543→        contentPadding = PaddingValues(horizontal = 48.dp, vertical = 24.dp),
+  1544→  1544→        horizontalArrangement = Arrangement.spacedBy(32.dp),
+  1545→  1545→        verticalAlignment = Alignment.CenterVertically
+  1546→  1546→    ) {
+  1547→  1547→        itemsIndexed(games, key = { _, game -> "${game.id}_${game.romPath}" }) { index, game ->
+  1548→  1548→            val isSelected = index == selectedIndex
+  1549→  1549→            FocusCard(
+  1550→  1550→                game = game,
+  1551→  1551→                isSelected = isSelected,
+  1552→  1552→                onClick = { onGameSelected(index) }
+  1553→  1553→            )
+  1554→  1554→        }
+  1555→  1555→    }
+  1556→  1556→}
+  1557→  1557→
+  1558→  1558→@Composable
+  1559→  1559→fun FocusCard(
+  1560→  1560→    game: GameEntity,
+  1561→  1561→    isSelected: Boolean,
+  1562→  1562→    onClick: () -> Unit
+  1563→  1563→) {
+  1564→  1564→    val theme = LocalPegasusTheme.current
+  1565→  1565→    val targetScale = if (isSelected) 1.05f else 0.92f
+  1566→  1566→    val targetElevation = if (isSelected) 16.dp else 4.dp
+  1567→  1567→    
+  1568→  1568→    val scale by androidx.compose.animation.core.animateFloatAsState(
+  1569→  1569→        targetValue = targetScale,
+  1570→  1570→        animationSpec = tween(durationMillis = 200, easing = FastOutLinearInEasing),
+  1571→  1571→        label = "scale"
+  1572→  1572→    )
+  1573→  1573→
+  1574→  1574→    BoxWithConstraints {
+  1575→  1575→        val cardHeight = if (maxHeight > 0.dp) (maxHeight * 0.72f).coerceIn(180.dp, 400.dp) else 430.dp
+  1576→  1576→        val cardWidth = (cardHeight * (310f / 430f)).coerceIn(135.dp, 310.dp)
+  1577→  1577→
+  1578→  1578→        Card(
+  1579→  1579→            modifier = Modifier
+  1580→  1580→                .width(cardWidth)
+  1581→  1581→                .height(cardHeight)
+  1582→  1582→                .scale(scale)
+  1583→  1583→                .clickable(onClick = onClick),
+  1584→  1584→            shape = RoundedCornerShape(28.dp),
+  1585→  1585→            colors = CardDefaults.cardColors(
+  1586→  1586→                containerColor = theme.surface.copy(alpha = if (isSelected) 0.85f else 0.5f)
+  1587→  1587→            ),
+  1588→  1588→            border = BorderStroke(
+  1589→  1589→                width = if (isSelected) 2.dp else 1.dp,
+  1590→  1590→                brush = if (isSelected) {
+  1591→  1591→                    Brush.verticalGradient(
+  1592→  1592→                        colors = listOf(
+  1593→  1593→                            theme.accent,
+  1594→  1594→                            theme.accent.copy(alpha = 0.3f)
+  1595→  1595→                        )
+  1596→  1596→                    )
+  1597→  1597→                } else {
+  1598→  1598→                    Brush.verticalGradient(
+  1599→  1599→                        colors = listOf(
+  1600→  1600→                            Color.White.copy(alpha = 0.1f),
+  1601→  1601→                            Color.White.copy(alpha = 0.02f)
+  1602→  1602→                        )
+  1603→  1603→                    )
+  1604→  1604→                }
+  1605→  1605→            ),
+  1606→  1606→            elevation = CardDefaults.cardElevation(defaultElevation = targetElevation)
+  1607→  1607→        ) {
+  1608→  1608→        Box(modifier = Modifier.fillMaxSize()) {
+  1609→  1609→            Column(
+  1610→  1610→                modifier = Modifier
+  1611→  1611→                    .fillMaxSize()
+  1612→  1612→                    .padding(20.dp),
+  1613→  1613→                verticalArrangement = Arrangement.SpaceBetween,
+  1614→  1614→                horizontalAlignment = Alignment.CenterHorizontally
+  1615→  1615→            ) {
+  1616→  1616→                // Clean hero header: no platform tag and no "unplayed" status badge on the home page.
+  1617→  1617→                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+  1618→  1618→                    if (game.isFavorite) {
+  1619→  1619→                        Icon(Icons.Filled.Favorite, contentDescription = "已收藏", tint = theme.accent, modifier = Modifier.size(20.dp))
+  1620→  1620→                    }
+  1621→  1621→                }
+  1622→  1622→
+  1623→  1623→                // Center Cover Art
+  1624→  1624→                Box(
+  1625→  1625→                    modifier = Modifier
+  1626→  1626→                        .size(160.dp)
+  1627→  1627→                        .clip(RoundedCornerShape(20.dp))
+  1628→  1628→                        .background(Brush.verticalGradient(listOf(theme.cardStart, theme.cardEnd))),
+  1629→  1629→                    contentAlignment = Alignment.Center
+  1630→  1630→                ) {
+  1631→  1631→                    UniversalGameArt(
+  1632→  1632→                        game = game,
+  1633→  1633→                        modifier = Modifier.fillMaxSize(),
+  1634→  1634→                        contentScale = ContentScale.Crop
+  1635→  1635→                    )
+  1636→  1636→                }
+  1637→  1637→
+  1638→  1638→                // Bottom Title
+  1639→  1639→                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+  1640→  1640→                    Text(
+  1641→  1641→                        text = game.title,
+  1642→  1642→                        color = theme.textMain,
+  1643→  1643→                        fontWeight = FontWeight.Bold,
+  1644→  1644→                        fontSize = 18.sp,
+  1645→  1645→                        maxLines = 1
+  1646→  1646→                    )
+  1647→  1647→                    Spacer(modifier = Modifier.height(4.dp))
+  1648→  1648→                    Text(
+  1649→  1649→                        text = if (isSelected) "按 A 鍵或點擊啟動" else "點擊選取",
+  1650→  1650→                        color = if (isSelected) theme.accent else theme.textSecondary,
+  1651→  1651→                        fontSize = 12.sp,
+  1652→  1652→                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+  1653→  1653→                    )
+  1654→  1654→                }
+  1655→  1655→            }
+  1656→  1656→        }
+  1657→  1657→    }
+  1658→  1658→}
+  1659→  1659→}
+  1660→  1660→
+  1661→  1661→@Composable
+  1662→  1662→fun BottomDock(
+  1663→  1663→    themeIndex: Int,
+  1664→  1664→    currentRoute: String,
+  1665→  1665→    onNavigate: (String) -> Unit,
+  1666→  1666→    forceVisible: Boolean = false,
+  1667→  1667→    interactionToken: Int = 0,
+  1668→  1668→    autoHideDelayMs: Long = 3000L,
+  1669→  1669→    modifier: Modifier = Modifier
+  1670→  1670→) {
+  1671→  1671→    val theme = LocalPegasusTheme.current
+  1672→  1672→    val context = LocalContext.current
+  1673→  1673→
+  1674→  1674→    var visible by remember { mutableStateOf(true) }
+  1675→  1675→
+  1676→  1676→    LaunchedEffect(interactionToken) {
+  1677→  1677→        if (!visible) return@LaunchedEffect
+  1678→  1678→        if (themeIndex == 10 && currentRoute == "home") {
+  1679→  1679→            // Keep dock permanently visible on Switch 2 Home
+  1680→  1680→        } else {
+  1681→  1681→            kotlinx.coroutines.delay(autoHideDelayMs)
+  1682→  1682→            if (!forceVisible) visible = false
+  1683→  1683→        }
+  1684→  1684→    }
+  1685→  1685→    LaunchedEffect(forceVisible) {
+  1686→  1686→        if (forceVisible) visible = true
+  1687→  1687→    }
+  1688→  1688→
+  1689→  1689→    AnimatedVisibility(
+  1690→  1690→        visible = visible || forceVisible,
+  1691→  1691→        enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.slideInVertically { it / 2 },
+  1692→  1692→        exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.slideOutVertically { it / 2 },
+  1693→  1693→        modifier = modifier
+  1694→  1694→    ) {
+  1695→  1695→        Row(
+  1696→  1696→            modifier = Modifier
+  1697→  1697→                .fillMaxWidth()
+  1698→  1698→                .padding(horizontal = 16.dp, vertical = 4.dp),
+  1699→  1699→            horizontalArrangement = Arrangement.Center,
+  1700→  1700→            verticalAlignment = Alignment.CenterVertically
+  1701→  1701→        ) {
+  1702→  1702→            when (themeIndex) {
+  1703→  1703→                0 -> SylphoraDock(theme, currentRoute, onNavigate, context)
+  1704→  1704→                1 -> IisuFluidDock(theme, currentRoute, onNavigate, context)
+  1705→  1705→                2 -> PegasusImperialDock(theme, currentRoute, onNavigate, context)
+  1706→  1706→                3 -> EsdeEsportsDock(theme, currentRoute, onNavigate, context)
+  1707→  1707→                4 -> SteamDeckDock(theme, currentRoute, onNavigate, context)
+  1708→  1708→                5 -> CyberpunkMatrixDock(theme, currentRoute, onNavigate, context)
+  1709→  1709→                6 -> NintendoJoyDock(theme, currentRoute, onNavigate, context)
+  1710→  1710→                7 -> GameBoyPixelDock(theme, currentRoute, onNavigate, context)
+  1711→  1711→                8 -> AnimeSakuraDock(theme, currentRoute, onNavigate, context)
+  1712→  1712→                9 -> Ps5DualSenseDock(theme, currentRoute, onNavigate, context)
+  1713→  1713→                10 -> {
+  1714→  1714→                    if (currentRoute == "home") {
+  1715→  1715→                        Switch2OledDock(theme, currentRoute, onNavigate, context)
+  1716→  1716→                    }
+  1717→  1717→                }
+  1718→  1718→                else -> SylphoraDock(theme, currentRoute, onNavigate, context)
+  1719→  1719→            }
+  1720→  1720→        }
+  1721→  1721→    }
+  1722→  1722→}
+  1723→  1723→
+  1724→  1724→@Composable
+  1725→  1725→private fun SylphoraDock(
+  1726→  1726→    theme: PegasusTheme,
+  1727→  1727→    currentRoute: String,
+  1728→  1728→    onNavigate: (String) -> Unit,
+  1729→  1729→    context: android.content.Context
+  1730→  1730→) {
+  1731→  1731→    val isDark = theme.isDark
+  1732→  1732→    Row(
+  1733→  1733→        modifier = Modifier
+  1734→  1734→            .clip(CircleShape)
+  1735→  1735→            .background(if (isDark) Color(0x33000000) else Color(0xE6FFFFFF))
+  1736→  1736→            .shadow(
+  1737→  1737→                elevation = 20.dp,
+  1738→  1738→                shape = CircleShape,
+  1739→  1739→                ambientColor = if (isDark) SylphoraCelestialPurple.copy(alpha = 0.20f) else Color(0xFF00838F).copy(alpha = 0.20f),
+  1740→  1740→                spotColor = theme.accent.copy(alpha = 0.35f)
+  1741→  1741→            )
+  1742→  1742→            .border(
+  1743→  1743→                width = 1.dp,
+  1744→  1744→                color = if (isDark) SylphoraCelestialPurple.copy(alpha = 0.20f) else Color(0xFF80CBC4),
+  1745→  1745→                shape = CircleShape
+  1746→  1746→            )
+  1747→  1747→            .padding(horizontal = 22.dp, vertical = 6.dp),
+  1748→  1748→        verticalAlignment = Alignment.CenterVertically,
+  1749→  1749→        horizontalArrangement = Arrangement.spacedBy(20.dp)
+  1750→  1750→    ) {
+  1751→  1751→        SylphoraDockItem(Icons.Filled.GridView, "首頁", currentRoute == "home", isDark) {
+  1752→  1752→            SoundManager.playSelectSound(context)
+  1753→  1753→            onNavigate("home")
+  1754→  1754→        }
+  1755→  1755→        SylphoraDockItem(Icons.Filled.SportsEsports, "遊戲庫", currentRoute == "library", isDark) {
+  1756→  1756→            SoundManager.playSelectSound(context)
+  1757→  1757→            onNavigate("library")
+  1758→  1758→        }
+  1759→  1759→        SylphoraDockItem(Icons.Filled.ShoppingBag, "AI 館長", currentRoute == "ai", isDark) {
+  1760→  1760→            SoundManager.playSelectSound(context)
+  1761→  1761→            onNavigate("ai")
+  1762→  1762→        }
+  1763→  1763→        SylphoraDockItem(Icons.Filled.TravelExplore, "考據", currentRoute == "research", isDark) {
+  1764→  1764→            SoundManager.playSelectSound(context)
+  1765→  1765→            onNavigate("research")
+  1766→  1766→        }
+  1767→  1767→        SylphoraDockItem(Icons.Filled.Settings, "設定", currentRoute == "tools", isDark) {
+  1768→  1768→            SoundManager.playSelectSound(context)
+  1769→  1769→            onNavigate("tools")
+  1770→  1770→        }
+  1771→  1771→    }
+  1772→  1772→}
+  1773→  1773→
+  1774→  1774→@Composable
+  1775→  1775→private fun IisuFluidDock(
+  1776→  1776→    theme: PegasusTheme,
+  1777→  1777→    currentRoute: String,
+  1778→  1778→    onNavigate: (String) -> Unit,
+  1779→  1779→    context: android.content.Context
+  1780→  1780→) {
+  1781→  1781→    Row(
+  1782→  1782→        modifier = Modifier
+  1783→  1783→            .clip(RoundedCornerShape(30.dp))
+  1784→  1784→            .background(theme.surface.copy(alpha = 0.85f))
+  1785→  1785→            .border(1.5.dp, theme.accent.copy(alpha = 0.55f), RoundedCornerShape(30.dp))
+  1786→  1786→            .shadow(16.dp, RoundedCornerShape(30.dp), ambientColor = theme.accent.copy(alpha = 0.35f))
+  1787→  1787→            .padding(horizontal = 16.dp, vertical = 6.dp),
+  1788→  1788→        verticalAlignment = Alignment.CenterVertically,
+  1789→  1789→        horizontalArrangement = Arrangement.spacedBy(14.dp)
+  1790→  1790→    ) {
+  1791→  1791→        listOf(
+  1792→  1792→            Triple("home", Icons.Filled.Home, "首頁"),
+  1793→  1793→            Triple("library", Icons.Filled.SportsEsports, "遊戲庫"),
+  1794→  1794→            Triple("ai", Icons.Filled.AutoAwesome, "iiSU 助理"),
+  1795→  1795→            Triple("research", Icons.Filled.TravelExplore, "考據"),
+  1796→  1796→            Triple("tools", Icons.Filled.Tune, "系統")
+  1797→  1797→        ).forEach { (route, icon, label) ->
+  1798→  1798→            val isSelected = currentRoute == route
+  1799→  1799→            Row(
+  1800→  1800→                modifier = Modifier
+  1801→  1801→                    .clip(RoundedCornerShape(20.dp))
+  1802→  1802→                    .background(if (isSelected) theme.accent else Color.Transparent)
+  1803→  1803→                    .clickable {
+  1804→  1804→                        SoundManager.playSelectSound(context)
+  1805→  1805→                        onNavigate(route)
+  1806→  1806→                    }
+  1807→  1807→                    .padding(horizontal = 14.dp, vertical = 6.dp),
+  1808→  1808→                verticalAlignment = Alignment.CenterVertically,
+  1809→  1809→                horizontalArrangement = Arrangement.spacedBy(6.dp)
+  1810→  1810→            ) {
+  1811→  1811→                Icon(
+  1812→  1812→                    imageVector = icon,
+  1813→  1813→                    contentDescription = label,
+  1814→  1814→                    tint = if (isSelected) theme.background else theme.textMain,
+  1815→  1815→                    modifier = Modifier.size(18.dp)
+  1816→  1816→                )
+  1817→  1817→                if (isSelected) {
+  1818→  1818→                    Text(label, color = theme.background, fontWeight = FontWeight.Bold, fontSize = 12.sp)
+  1819→  1819→                }
+  1820→  1820→            }
+  1821→  1821→        }
+  1822→  1822→    }
+  1823→  1823→}
+  1824→  1824→
+  1825→  1825→@Composable
+  1826→  1826→private fun PegasusImperialDock(
+  1827→  1827→    theme: PegasusTheme,
+  1828→  1828→    currentRoute: String,
+  1829→  1829→    onNavigate: (String) -> Unit,
+  1830→  1830→    context: android.content.Context
+  1831→  1831→) {
+  1832→  1832→    Row(
+  1833→  1833→        modifier = Modifier
+  1834→  1834→            .clip(RoundedCornerShape(8.dp))
+  1835→  1835→            .background(Color(0xFF14120E))
+  1836→  1836→            .border(1.5.dp, Color(0xFFD4AF37), RoundedCornerShape(8.dp))
+  1837→  1837→            .shadow(18.dp, RoundedCornerShape(8.dp), ambientColor = Color(0xFFD4AF37).copy(alpha = 0.45f))
+  1838→  1838→            .padding(horizontal = 18.dp, vertical = 6.dp),
+  1839→  1839→        verticalAlignment = Alignment.CenterVertically,
+  1840→  1840→        horizontalArrangement = Arrangement.spacedBy(16.dp)
+  1841→  1841→    ) {
+  1842→  1842→        listOf(
+  1843→  1843→            Triple("home", "I. 典藏", Icons.Filled.AccountBalance),
+  1844→  1844→            Triple("library", "II. 圖鑑", Icons.Filled.CollectionsBookmark),
+  1845→  1845→            Triple("ai", "III. 智庫", Icons.Filled.Psychology),
+  1846→  1846→            Triple("research", "IV. 考據", Icons.Filled.TravelExplore),
+  1847→  1847→            Triple("tools", "V. 樞紐", Icons.Filled.SettingsSuggest)
+  1848→  1848→        ).forEach { (route, label, icon) ->
+  1849→  1849→            val isSelected = currentRoute == route
+  1850→  1850→            Column(
+  1851→  1851→                horizontalAlignment = Alignment.CenterHorizontally,
+  1852→  1852→                modifier = Modifier
+  1853→  1853→                    .clickable {
+  1854→  1854→                        SoundManager.playSelectSound(context)
+  1855→  1855→                        onNavigate(route)
+  1856→  1856→                    }
+  1857→  1857→                    .padding(horizontal = 10.dp, vertical = 4.dp)
+  1858→  1858→            ) {
+  1859→  1859→                Icon(
+  1860→  1860→                    imageVector = icon,
+  1861→  1861→                    contentDescription = label,
+  1862→  1862→                    tint = if (isSelected) Color(0xFFFFDF73) else Color(0xFF8C7E60),
+  1863→  1863→                    modifier = Modifier.size(20.dp)
+  1864→  1864→                )
+  1865→  1865→                Spacer(Modifier.height(2.dp))
+  1866→  1866→                Text(
+  1867→  1867→                    text = label,
+  1868→  1868→                    color = if (isSelected) Color(0xFFFFDF73) else Color(0xFF8C7E60),
+  1869→  1869→                    fontFamily = FontFamily.Monospace,
+  1870→  1870→                    fontSize = 10.sp,
+  1871→  1871→                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+  1872→  1872→                )
+  1873→  1873→            }
+  1874→  1874→        }
+  1875→  1875→    }
+  1876→  1876→}
+  1877→  1877→
+  1878→  1878→@Composable
+  1879→  1879→private fun EsdeEsportsDock(
+  1880→  1880→    theme: PegasusTheme,
+  1881→  1881→    currentRoute: String,
+  1882→  1882→    onNavigate: (String) -> Unit,
+  1883→  1883→    context: android.content.Context
+  1884→  1884→) {
+  1885→  1885→    Row(
+  1886→  1886→        modifier = Modifier
+  1887→  1887→            .clip(RoundedCornerShape(6.dp))
+  1888→  1888→            .background(Color(0xFF121820))
+  1889→  1889→            .border(2.dp, Brush.horizontalGradient(listOf(Color(0xFF00E5FF), Color(0xFFFF0055))), RoundedCornerShape(6.dp))
+  1890→  1890→            .padding(horizontal = 16.dp, vertical = 6.dp),
+  1891→  1891→        verticalAlignment = Alignment.CenterVertically,
+  1892→  1892→        horizontalArrangement = Arrangement.spacedBy(12.dp)
+  1893→  1893→    ) {
+  1894→  1894→        listOf(
+  1895→  1895→            Triple("home", Icons.Filled.SportsEsports, "MAIN"),
+  1896→  1896→            Triple("library", Icons.Filled.ViewModule, "ROMS"),
+  1897→  1897→            Triple("ai", Icons.Filled.SmartToy, "ES-AI"),
+  1898→  1898→            Triple("research", Icons.Filled.TravelExplore, "ARCHIVE"),
+  1899→  1899→            Triple("tools", Icons.Filled.Build, "CONFIG")
+  1900→  1900→        ).forEach { (route, icon, label) ->
+  1901→  1901→            val isSelected = currentRoute == route
+  1902→  1902→            Box(
+  1903→  1903→                modifier = Modifier
+  1904→  1904→                    .clip(RoundedCornerShape(4.dp))
+  1905→  1905→                    .background(if (isSelected) Color(0xFF00E5FF) else Color(0x3300E5FF))
+  1906→  1906→                    .clickable {
+  1907→  1907→                        SoundManager.playSelectSound(context)
+  1908→  1908→                        onNavigate(route)
+  1909→  1909→                    }
+  1910→  1910→                    .padding(horizontal = 14.dp, vertical = 6.dp),
+  1911→  1911→                contentAlignment = Alignment.Center
+  1912→  1912→            ) {
+  1913→  1913→                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+  1914→  1914→                    Icon(
+  1915→  1915→                        imageVector = icon,
+  1916→  1916→                        contentDescription = label,
+  1917→  1917→                        tint = if (isSelected) Color.Black else Color(0xFF00E5FF),
+  1918→  1918→                        modifier = Modifier.size(16.dp)
+  1919→  1919→                    )
+  1920→  1920→                    Text(
+  1921→  1921→                        label,
+  1922→  1922→                        color = if (isSelected) Color.Black else Color(0xFF00E5FF),
+  1923→  1923→                        fontFamily = FontFamily.Monospace,
+  1924→  1924→                        fontSize = 11.sp,
+  1925→  1925→                        fontWeight = FontWeight.Black
+  1926→  1926→                    )
+  1927→  1927→                }
+  1928→  1928→            }
+  1929→  1929→        }
+  1930→  1930→    }
+  1931→  1931→}
+  1932→  1932→
+  1933→  1933→@Composable
+  1934→  1934→private fun SteamDeckDock(
+  1935→  1935→    theme: PegasusTheme,
+  1936→  1936→    currentRoute: String,
+  1937→  1937→    onNavigate: (String) -> Unit,
+  1938→  1938→    context: android.content.Context
+  1939→  1939→) {
+  1940→  1940→    Row(
+  1941→  1941→        modifier = Modifier
+  1942→  1942→            .clip(RoundedCornerShape(22.dp))
+  1943→  1943→            .background(Color(0xFF1A1F26))
+  1944→  1944→            .border(1.dp, Color(0xFF1A9FFF).copy(alpha = 0.5f), RoundedCornerShape(22.dp))
+  1945→  1945→            .padding(horizontal = 14.dp, vertical = 4.dp),
+  1946→  1946→        verticalAlignment = Alignment.CenterVertically,
+  1947→  1947→        horizontalArrangement = Arrangement.spacedBy(10.dp)
+  1948→  1948→    ) {
+  1949→  1949→        listOf(
+  1950→  1950→            Triple("home", Icons.Filled.Home, "STEAM"),
+  1951→  1951→            Triple("library", Icons.Filled.GridView, "庫"),
+  1952→  1952→            Triple("ai", Icons.Filled.Psychology, "助理"),
+  1953→  1953→            Triple("research", Icons.Filled.TravelExplore, "考據"),
+  1954→  1954→            Triple("tools", Icons.Filled.Settings, "快速存取")
+  1955→  1955→        ).forEach { (route, icon, label) ->
+  1956→  1956→            val isSelected = currentRoute == route
+  1957→  1957→            Row(
+  1958→  1958→                modifier = Modifier
+  1959→  1959→                    .clip(RoundedCornerShape(16.dp))
+  1960→  1960→                    .background(if (isSelected) Color(0xFF1A9FFF) else Color.Transparent)
+  1961→  1961→                    .clickable {
+  1962→  1962→                        SoundManager.playSelectSound(context)
+  1963→  1963→                        onNavigate(route)
+  1964→  1964→                    }
+  1965→  1965→                    .padding(horizontal = 12.dp, vertical = 6.dp),
+  1966→  1966→                verticalAlignment = Alignment.CenterVertically,
+  1967→  1967→                horizontalArrangement = Arrangement.spacedBy(6.dp)
+  1968→  1968→            ) {
+  1969→  1969→                Icon(
+  1970→  1970→                    imageVector = icon,
+  1971→  1971→                    contentDescription = label,
+  1972→  1972→                    tint = if (isSelected) Color.White else Color(0xFF8A9BA8),
+  1973→  1973→                    modifier = Modifier.size(16.dp)
+  1974→  1974→                )
+  1975→  1975→                Text(
+  1976→  1976→                    label,
+  1977→  1977→                    color = if (isSelected) Color.White else Color(0xFF8A9BA8),
+  1978→  1978→                    fontSize = 11.sp,
+  1979→  1979→                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+  1980→  1980→                )
+  1981→  1981→            }
+  1982→  1982→        }
+  1983→  1983→    }
+  1984→  1984→}
+  1985→  1985→
+  1986→  1986→@Composable
+  1987→  1987→private fun CyberpunkMatrixDock(
+  1988→  1988→    theme: PegasusTheme,
+  1989→  1989→    currentRoute: String,
+  1990→  1990→    onNavigate: (String) -> Unit,
+  1991→  1991→    context: android.content.Context
+  1992→  1992→) {
+  1993→  1993→    Row(
+  1994→  1994→        modifier = Modifier
+  1995→  1995→            .clip(RoundedCornerShape(2.dp))
+  1996→  1996→            .background(Color(0xFF0D021A))
+  1997→  1997→            .border(1.5.dp, Color(0xFFFFEE00), RoundedCornerShape(2.dp))
+  1998→  1998→            .shadow(16.dp, ambientColor = Color(0xFFFFEE00).copy(alpha = 0.6f))
+  1999→  1999→            .padding(horizontal = 12.dp, vertical = 4.dp),
+  2000→  2000→        verticalAlignment = Alignment.CenterVertically,
+
+[showing lines 1-2000 of 2002; use offset=2001 with limit to continue reading]

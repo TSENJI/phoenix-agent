@@ -1,0 +1,15 @@
+[phases.setup]
+npmInstall = false
+
+[phases.install]
+cmds = ['npm install -g bun', 'bun install']
+
+[phases.build]
+cmds = ['bun run db:generate', 'bun run build']
+
+[phases.start]
+cmd = 'npx prisma db push --accept-data-loss 2>/dev/null && node .next/standalone/server.js'
+
+[variables]
+NODE_ENV = 'production'
+PORT = '3000'

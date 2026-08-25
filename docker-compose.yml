@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  phoenix-agent:
+    build: .
+    container_name: phoenix-agent
+    ports:
+      - "3000:3000"
+    volumes:
+      - phoenix-data:/app/db
+      - phoenix-uploads:/app/uploads
+    environment:
+      - DATABASE_URL=file:/app/db/phoenix.db
+      - BROWSER_WORKER_URL=http://localhost:3001
+      - NODE_ENV=production
+    restart: unless-stopped
+    mem_limit: 2g
+
+volumes:
+  phoenix-data:
+  phoenix-uploads:

@@ -1,0 +1,72 @@
+# ============================================
+# Phoenix Agent - Koyeb Deployment Config
+# ============================================
+# Deploy with: koyeb app create --config deploy/koyeb.yaml
+#
+# Prerequisites:
+#   1. Install Koyeb CLI: https://www.koyeb.com/docs/cli/install
+#   2. Login: koyeb login
+#   3. Set environment variables via Koyeb dashboard or CLI
+#
+# Required Environment Variables (set in Koyeb dashboard):
+#   DATABASE_URL=file:./db/custom.db
+#   BROWSER_WORKER_URL=http://phoenix-browser:3001
+#   E2B_API_KEY=<your-key>
+#   GEMINI_KEY=<your-key>
+#   GROQ_KEY=<your-key>
+#   DEEPSEEK_KEY=<your-key>
+#   QWEN_KEY=<your-key>
+#   OPENROUTER_KEY=<your-key>
+# ============================================
+
+name: phoenix-agent
+
+services:
+  # ---- Main Next.js Application ----
+  - name: phoenix-app
+    instance_type: small
+    docker:
+      build_context: .
+      build_dockerfile: Dockerfile
+    ports:
+      - port: 3000
+        protocol: http
+    routes:
+      - path: /
+    env:
+      - key: NODE_ENV
+        value: production
+      - key: BROWSER_WORKER_URL
+        value: http://phoenix-browser.koyeb-svc:3001
+    deployment_strategy: rolling
+    auto_deploy: true
+    healthchecks:
+      - port: 3000
+        path: /api/health
+        interval: 30
+        timeout: 10
+        initial_delay: 40
+
+  # ---- Playwright Browser Worker ----
+  - name: phoenix-browser
+    instance_type: small
+    docker:
+      build_context: ./browser-worker
+      build_dockerfile: Dockerfile
+    ports:
+      - port: 3001
+        protocol: http
+    routes: []
+    env:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3001"
+    deployment_strategy: rolling
+    auto_deploy: true
+    healthchecks:
+      - port: 3001
+        path: /health
+        interval: 20
+        timeout: 5
+        initial_delay: 15
